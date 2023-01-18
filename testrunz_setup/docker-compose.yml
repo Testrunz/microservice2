@@ -8,6 +8,7 @@ services:
     depends_on:
       - authapp
       - experimentapp
+      - feedbackapp
     ports:
       - "8080:80"
     restart: always
@@ -49,10 +50,22 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=premnath
       - MONGO_INITDB_ROOT_PASSWORD=Premnath123
     volumes:
-      - ./init-produtmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-      - ./mongoprodut-volume:/data/db
+      - ./init-experimentmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongoexperiment-volume:/data/db
     ports:
       - '27018:27017'
+  Feedbackdb:
+    image: mongo:latest
+    container_name: 'feedback-db-container'
+    environment:
+      - MONGO_INITDB_DATABASE=feedback
+      - MONGO_INITDB_ROOT_USERNAME=premnath
+      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
+    volumes:
+      - ./init-feedbackmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongofeedback-volume:/data/db
+    ports:
+      - '27019:27017'
   authapp:
     build:
       context: ../Auth_service
@@ -73,6 +86,16 @@ services:
       - 8000:8000
     volumes:
       - ../Experiment_service:/usr/src/app
+  feedbackapp:
+    build:
+      context: ../Feedback_service
+    depends_on:
+     - Feedbackdb
+     - redis
+    ports:
+      - 9000:9000
+    volumes:
+      - ../Feedback_service:/usr/src/app
     
 
   
@@ -88,18 +111,7 @@ services:
   #     - ./mongoprodut-volume:/data/db
   #   ports:
   #     - '27018:27017'
-  # Feedbackdb:
-  #   image: mongo:latest
-  #   container_name: 'produt-db-container'
-  #   environment:
-  #     - MONGO_INITDB_DATABASE=produt
-  #     - MONGO_INITDB_ROOT_USERNAME=premnath
-  #     - MONGO_INITDB_ROOT_PASSWORD=Premnath123
-  #   volumes:
-  #     - ./init-produtmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-  #     - ./mongoprodut-volume:/data/db
-  #   ports:
-  #     - '27018:27017'
+  
   # MoreInfodb:
   #   image: mongo:latest
   #   container_name: 'produt-db-container'

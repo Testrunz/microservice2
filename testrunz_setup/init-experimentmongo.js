@@ -4,7 +4,6 @@ db.createUser({
     roles: [
         {
             role: "readWrite",
-            db: "order"
         }
     ]
 })
