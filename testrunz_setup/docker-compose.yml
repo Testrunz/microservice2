@@ -66,6 +66,42 @@ services:
       - ./mongofeedback-volume:/data/db
     ports:
       - '27019:27017'
+  MoreInfodb:
+    image: mongo:latest
+    container_name: 'moreinfo-db-container'
+    environment:
+      - MONGO_INITDB_DATABASE=moreinfo
+      - MONGO_INITDB_ROOT_USERNAME=premnath
+      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
+    volumes:
+      - ./init-moreinfomongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongomoreinfo-volume:/data/db
+    ports:
+      - '27020:27017'
+  Notedb:
+    image: mongo:latest
+    container_name: 'note-db-container'
+    environment:
+      - MONGO_INITDB_DATABASE=note
+      - MONGO_INITDB_ROOT_USERNAME=premnath
+      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
+    volumes:
+      - ./init-notemongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongonote-volume:/data/db
+    ports:
+      - '27021:27017'
+  Proceduredb:
+    image: mongo:latest
+    container_name: 'procedure-db-container'
+    environment:
+      - MONGO_INITDB_DATABASE=procedure
+      - MONGO_INITDB_ROOT_USERNAME=premnath
+      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
+    volumes:
+      - ./init-proceduremongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongoprocedure-volume:/data/db
+    ports:
+      - '27022:27017'
   authapp:
     build:
       context: ../Auth_service
@@ -96,43 +132,3 @@ services:
       - 9000:9000
     volumes:
       - ../Feedback_service:/usr/src/app
-    
-
-  
-  # Notedb:
-  #   image: mongo:latest
-  #   container_name: 'produt-db-container'
-  #   environment:
-  #     - MONGO_INITDB_DATABASE=produt
-  #     - MONGO_INITDB_ROOT_USERNAME=premnath
-  #     - MONGO_INITDB_ROOT_PASSWORD=Premnath123
-  #   volumes:
-  #     - ./init-produtmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-  #     - ./mongoprodut-volume:/data/db
-  #   ports:
-  #     - '27018:27017'
-  
-  # MoreInfodb:
-  #   image: mongo:latest
-  #   container_name: 'produt-db-container'
-  #   environment:
-  #     - MONGO_INITDB_DATABASE=produt
-  #     - MONGO_INITDB_ROOT_USERNAME=premnath
-  #     - MONGO_INITDB_ROOT_PASSWORD=Premnath123
-  #   volumes:
-  #     - ./init-produtmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-  #     - ./mongoprodut-volume:/data/db
-  #   ports:
-  #     - '27018:27017'
-  # Proceduredb:
-  #   image: mongo:latest
-  #   container_name: 'order-db-container'
-  #   environment:
-  #     - MONGO_INITDB_DATABASE=order
-  #     - MONGO_INITDB_ROOT_USERNAME=premnath
-  #     - MONGO_INITDB_ROOT_PASSWORD=Premnath123
-  #   volumes:
-  #     - ./init-ordermongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-  #     - ./mongoorder-volume:/data/db
-  #   ports:
-  #     - '27019:27017'
