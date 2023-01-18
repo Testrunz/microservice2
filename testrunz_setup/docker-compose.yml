@@ -9,6 +9,7 @@ services:
       - authapp
       - experimentapp
       - feedbackapp
+      - pythonapp
     ports:
       - "8080:80"
     restart: always
@@ -132,3 +133,12 @@ services:
       - 9000:9000
     volumes:
       - ../Feedback_service:/usr/src/app
+  pythonapp:
+    build:
+      context: ../Python_service
+    depends_on:
+     - redis
+    ports:
+      - 6000:6000
+    volumes:
+      - ../Python_service:/usr/src/app
