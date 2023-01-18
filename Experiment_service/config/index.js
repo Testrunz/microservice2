@@ -10,7 +10,7 @@ async function db() {
       console.error(err);
      });
     mongoose.connection.on('connected', function () {
-      console.log("Auth db Connected");
+      console.log("Experiment db Connected");
      });
   }
   module.exports = { db };
