@@ -1,0 +1,126 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: reverse_proxy
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - authapp
+      - experimentapp
+    ports:
+      - "8080:80"
+    restart: always
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+        - ./redis/data:/bitnami/redis/data
+    ports:
+      - '6379:6379'
+    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 100mb
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+      - ./rabbitmq/data/:/var/lib/rabbitmq
+      - ./rabbitmq/log/:/var/log/rabbitmq
+  authdb:
+    image: mongo:latest
+    container_name: 'auth-db-container'
+    environment:
+      - MONGO_INITDB_DATABASE=auth
+      - MONGO_INITDB_ROOT_USERNAME=premnath
+      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
+    volumes:
+      - ./init-authmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongoauth-volume:/data/db
+    ports:
+      - '27017:27017'
+  experimentdb:
+    image: mongo:latest
+    container_name: 'experiment-db-container'
+    environment:
+      - MONGO_INITDB_DATABASE=experiment
+      - MONGO_INITDB_ROOT_USERNAME=premnath
+      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
+    volumes:
+      - ./init-produtmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongoprodut-volume:/data/db
+    ports:
+      - '27018:27017'
+  authapp:
+    build:
+      context: ../Auth_service
+    depends_on:
+      - authdb
+      - redis
+    ports:
+      - 7000:7000
+    volumes:
+      - ../Auth_service:/usr/src/app
+  experimentapp:
+    build:
+      context: ../Experiment_service
+    depends_on:
+     - experimentdb
+     - redis
+    ports:
+      - 8000:8000
+    volumes:
+      - ../Experiment_service:/usr/src/app
+    
+
+  
+  # Notedb:
+  #   image: mongo:latest
+  #   container_name: 'produt-db-container'
+  #   environment:
+  #     - MONGO_INITDB_DATABASE=produt
+  #     - MONGO_INITDB_ROOT_USERNAME=premnath
+  #     - MONGO_INITDB_ROOT_PASSWORD=Premnath123
+  #   volumes:
+  #     - ./init-produtmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+  #     - ./mongoprodut-volume:/data/db
+  #   ports:
+  #     - '27018:27017'
+  # Feedbackdb:
+  #   image: mongo:latest
+  #   container_name: 'produt-db-container'
+  #   environment:
+  #     - MONGO_INITDB_DATABASE=produt
+  #     - MONGO_INITDB_ROOT_USERNAME=premnath
+  #     - MONGO_INITDB_ROOT_PASSWORD=Premnath123
+  #   volumes:
+  #     - ./init-produtmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+  #     - ./mongoprodut-volume:/data/db
+  #   ports:
+  #     - '27018:27017'
+  # MoreInfodb:
+  #   image: mongo:latest
+  #   container_name: 'produt-db-container'
+  #   environment:
+  #     - MONGO_INITDB_DATABASE=produt
+  #     - MONGO_INITDB_ROOT_USERNAME=premnath
+  #     - MONGO_INITDB_ROOT_PASSWORD=Premnath123
+  #   volumes:
+  #     - ./init-produtmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+  #     - ./mongoprodut-volume:/data/db
+  #   ports:
+  #     - '27018:27017'
+  # Proceduredb:
+  #   image: mongo:latest
+  #   container_name: 'order-db-container'
+  #   environment:
+  #     - MONGO_INITDB_DATABASE=order
+  #     - MONGO_INITDB_ROOT_USERNAME=premnath
+  #     - MONGO_INITDB_ROOT_PASSWORD=Premnath123
+  #   volumes:
+  #     - ./init-ordermongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+  #     - ./mongoorder-volume:/data/db
+  #   ports:
+  #     - '27019:27017'

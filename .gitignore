@@ -1,0 +1,7 @@
+node_modules
+.env
+testrunz_setup/mongoauth-volume
+testrunz_setup/mongoorder-volume
+testrunz_setup/mongoprodut-volume
+testrunz_setup/rabbitmq
+testrunz_setup/redis
