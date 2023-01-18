@@ -9,6 +9,9 @@ services:
       - authapp
       - experimentapp
       - feedbackapp
+      - moreinfoapp
+      - noteapp
+      - procedureapp
       - pythonapp
     ports:
       - "8080:80"
@@ -133,6 +136,36 @@ services:
       - 9000:9000
     volumes:
       - ../Feedback_service:/usr/src/app
+  moreinfoapp:
+    build:
+      context: ../MoreInfo_service
+    depends_on:
+     - MoreInfodb
+     - redis
+    ports:
+      - 5000:5000
+    volumes:
+      - ../MoreInfo_service:/usr/src/app
+  noteapp:
+    build:
+      context: ../Note_service
+    depends_on:
+     - Notedb
+     - redis
+    ports:
+      - 4000:4000
+    volumes:
+      - ../Note_service:/usr/src/app
+  procedureapp:
+    build:
+      context: ../Procedure_service
+    depends_on:
+     - Proceduredb
+     - redis
+    ports:
+      - 2000:2000
+    volumes:
+      - ../Procedure_service:/usr/src/app
   pythonapp:
     build:
       context: ../Python_service
