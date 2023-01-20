@@ -1,4 +1,9 @@
 const mongoose = require("mongoose");
+const amqp = require("amqplib");
+
+
+let channel, connection;
+
 mongoose.set("strictQuery", false);
 
 async function db() {
@@ -10,7 +15,25 @@ async function db() {
       console.error(err);
      });
     mongoose.connection.on('connected', function () {
-      console.log("Moreinfo db Connected");
+      console.log("Feedback db Connected");
      });
   }
-  module.exports = { db };
+  async function connectMessageQue() {
+    try {
+      connection = await amqp.connect(`amqp://${process.env.AMQP_HOST}:${process.env.AMQP_PORT}`, (err, conn) => {
+        if (err) throw err;
+        return conn;
+      });
+      console.log("Messaging system started");
+      channel = await connection.createChannel();
+      await channel.assertQueue("MOREINFO:USER");
+      channel.consume("MOREINFO:USER", (data) => {
+        const user = JSON.parse(data.content);
+        console.log("Moreinfo user", user);
+        channel.ack(data);
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  module.exports = { db, connectMessageQue };

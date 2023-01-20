@@ -4,7 +4,7 @@ const compression = require("compression");
 const cors = require("cors");
 
 const router = require("./routes");
-const { db } = require("./config");
+const { db, connectMessageQue } = require("./config");
 const {
   errorLogger,
   errorResponder,
@@ -33,8 +33,9 @@ function bootstrap() {
 }
 
 db()
-  .then(() => {
+  .then(async () => {
     bootstrap();
+    await connectMessageQue();
   })
   .catch((err) => {
     console.error(err);

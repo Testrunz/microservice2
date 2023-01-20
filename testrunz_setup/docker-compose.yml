@@ -112,6 +112,7 @@ services:
     depends_on:
       - authdb
       - redis
+      - rabbitmq
     ports:
       - 7000:7000
     volumes:
@@ -122,6 +123,7 @@ services:
     depends_on:
      - experimentdb
      - redis
+     - rabbitmq
     ports:
       - 8000:8000
     volumes:
@@ -132,6 +134,7 @@ services:
     depends_on:
      - Feedbackdb
      - redis
+     - rabbitmq
     ports:
       - 9000:9000
     volumes:
@@ -142,6 +145,7 @@ services:
     depends_on:
      - MoreInfodb
      - redis
+     - rabbitmq
     ports:
       - 5000:5000
     volumes:
@@ -152,6 +156,7 @@ services:
     depends_on:
      - Notedb
      - redis
+     - rabbitmq
     ports:
       - 4000:4000
     volumes:
@@ -162,6 +167,7 @@ services:
     depends_on:
      - Proceduredb
      - redis
+     - rabbitmq
     ports:
       - 2000:2000
     volumes:
@@ -171,6 +177,7 @@ services:
       context: ../Python_service
     depends_on:
      - redis
+     - rabbitmq
     ports:
       - 6000:6000
     volumes:
