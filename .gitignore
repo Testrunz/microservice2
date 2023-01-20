@@ -6,5 +6,6 @@ testrunz_setup/mongofeedback-volume
 testrunz_setup/mongomoreinfo-volume
 testrunz_setup/mongonote-volume
 testrunz_setup/mongoprocedure-volume
+testrunz_setup/mongopython-volume
 testrunz_setup/rabbitmq
 testrunz_setup/redis

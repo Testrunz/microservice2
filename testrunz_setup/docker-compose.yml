@@ -106,6 +106,18 @@ services:
       - ./mongoprocedure-volume:/data/db
     ports:
       - '27022:27017'
+  Pythondb:
+    image: mongo:latest
+    container_name: 'python-db-container'
+    environment:
+      - MONGO_INITDB_DATABASE=python
+      - MONGO_INITDB_ROOT_USERNAME=premnath
+      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
+    volumes:
+      - ./init-pythonmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongopython-volume:/data/db
+    ports:
+      - '27022:27017'
   authapp:
     build:
       context: ../Auth_service

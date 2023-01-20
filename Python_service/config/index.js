@@ -1,7 +1,24 @@
+const mongoose = require("mongoose");
+const { createClient } = require("redis");
 const amqp = require("amqplib");
 
 
 let channel, connection;
+
+mongoose.set("strictQuery", false);
+
+async function db() {
+    mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    mongoose.connection.on('error', function (err) {
+      console.error(err);
+     });
+    mongoose.connection.on('connected', function () {
+      console.log("Feedback db Connected");
+     });
+  }
 
   async function connectMessageQue() {
     try {
@@ -21,4 +38,11 @@ let channel, connection;
       console.error(err);
     }
   }
-  module.exports = {  connectMessageQue };
+
+  const redisClient = createClient({
+    socket: { port: process.env.REDIS_PORT, host: process.env.REDIS_HOST },
+  });
+  redisClient.on("error", (err) => console.log("Redis Client Error", err));
+  
+
+  module.exports = {  db, connectMessageQue, redisClient };

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { createClient } = require("redis");
 const amqp = require("amqplib");
 
 
@@ -36,4 +37,10 @@ async function db() {
       console.error(err);
     }
   }
-  module.exports = { db, connectMessageQue };
+  
+  const redisClient = createClient({
+    socket: { port: process.env.REDIS_PORT, host: process.env.REDIS_HOST },
+  });
+  redisClient.on("error", (err) => console.log("Redis Client Error", err));
+
+  module.exports = { db, connectMessageQue, redisClient };
