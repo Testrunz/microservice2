@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const { createClient } = require("redis");
 const amqp = require("amqplib");
 
+const User = require("../model/User")
 
 let channel, connection;
 
@@ -32,6 +33,11 @@ async function db() {
       channel.consume("PYTHON:USER", (data) => {
         const user = JSON.parse(data.content);
         console.log("Python user", user);
+        const newUser = new User({
+          name: user.name,
+          email: user.email,
+        });
+        newUser.save();
         channel.ack(data);
       });
     } catch (err) {

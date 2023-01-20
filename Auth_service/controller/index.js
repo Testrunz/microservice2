@@ -19,7 +19,7 @@ async function register(req, res, next) {
       email,
     });
     await redisClient.connect();
-    await redisClient.set(newUser._id.toString(), JSON.stringify(newUser));
+    await redisClient.set(newUser._id.toString(), JSON.stringify({auth: newUser}));
     await redisClient.disconnect();
     newUser.save();
     channel.sendToQueue("EXPERIMENT:USER", Buffer.from(JSON.stringify(newUser)));
