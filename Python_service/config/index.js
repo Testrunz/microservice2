@@ -16,7 +16,7 @@ async function db() {
       console.error(err);
      });
     mongoose.connection.on('connected', function () {
-      console.log("Feedback db Connected");
+      console.log("Python db Connected");
      });
   }
 

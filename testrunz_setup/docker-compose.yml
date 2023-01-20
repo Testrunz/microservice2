@@ -117,7 +117,7 @@ services:
       - ./init-pythonmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
       - ./mongopython-volume:/data/db
     ports:
-      - '27022:27017'
+      - '27023:27017'
   authapp:
     build:
       context: ../Auth_service

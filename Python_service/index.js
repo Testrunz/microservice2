@@ -3,7 +3,7 @@ const express = require("express");
 const compression = require("compression");
 const cors = require("cors");
 
-const { connectMessageQue } = require("./config");
+const { db, connectMessageQue } = require("./config");
 const router = require("./routes");
 
 const {
@@ -32,7 +32,9 @@ function bootstrap() {
     console.log(`python Service running on ${process.env.PORT}`);
   });
 }
-(async () => {
+db().then(async () => {
   await connectMessageQue();
-})();
-bootstrap();
+  bootstrap();
+}).catch(err=>{
+  console.error(err);
+})
