@@ -33,7 +33,7 @@ async function db() {
         const user = JSON.parse(data.content);
         console.log("Note user", user);
         const newUser = new User({
-          _id: user._id,
+          _id: mongoose.Types.ObjectId(user._id),
           name: user.name,
           email: user.email,
         });
