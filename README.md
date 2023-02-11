@@ -1,1 +1,3 @@
 Testrunz Microservice
+rabbitmqctl purge_queue 
+rabbitmqctl list_queues

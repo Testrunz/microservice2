@@ -20,7 +20,6 @@ async function db() {
       console.log("Python db Connected");
      });
   }
-
   async function connectMessageQue() {
     try {
       connection = await amqp.connect(`amqp://${process.env.AMQP_HOST}:${process.env.AMQP_PORT}`, (err, conn) => {
@@ -52,4 +51,4 @@ async function db() {
   redisClient.on("error", (err) => console.log("Redis Client Error", err));
   
 
-  module.exports = {  db, connectMessageQue, redisClient };
+  module.exports = { db, connectMessageQue, redisClient };

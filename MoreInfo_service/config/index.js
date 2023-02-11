@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const { createClient } = require("redis");
 const amqp = require("amqplib");
 
+const User = require("../model/User")
 
 let channel, connection;
 
@@ -16,7 +17,7 @@ async function db() {
       console.error(err);
      });
     mongoose.connection.on('connected', function () {
-      console.log("Feedback db Connected");
+      console.log("MoreInfo db Connected");
      });
   }
   async function connectMessageQue() {
@@ -30,7 +31,13 @@ async function db() {
       await channel.assertQueue("MOREINFO:USER");
       channel.consume("MOREINFO:USER", (data) => {
         const user = JSON.parse(data.content);
-        console.log("Moreinfo user", user);
+        console.log("Moreinfo user", user._id, user.name);
+        const newUser = new User({
+          _id: mongoose.Types.ObjectId(user._id),
+          name: user.name,
+          email: user.email,
+        });
+        newUser.save();
         channel.ack(data);
       });
     } catch (err) {
