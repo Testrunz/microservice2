@@ -1,70 +1,58 @@
-const jwt = require("jsonwebtoken");
-const events = require("events");
-const { redisClient, connectMessageQue } = require("../config");
+const firebaseAdmin = require("../services/firebase");
 const User = require("../models/User");
 
-const EventEmitter = new events.EventEmitter();
-EventEmitter.once("signIn", (data) => {
-  console.log("Login emitter", data);
-});
-// register
-async function register(req, res, next) {
-  try {
-    const channel = await connectMessageQue();
-    const { name, email } = req.body;
-    const userExits = await User.findOne({ email });
-    if (userExits) return res.json({ message: "User already exists" });
-    const newUser = new User({
-      name,
-      email,
+const validate = async (req, res) => {
+  console.log("user", req.user);
+  res.status(200).json(req.user);
+};
+
+const register = async (req, res) => {
+  const { email, name, password } = req.body;
+  if (!email || !name || !password) {
+    return res.status(400).json({
+      error:
+        "Invalid request body. Must contain email, password, and name for user.",
     });
-    await redisClient.connect();
-    await redisClient.set(newUser._id.toString(), JSON.stringify({auth: newUser}));
-    await redisClient.disconnect();
-    newUser.save();
-    channel.sendToQueue("EXPERIMENT:USER", Buffer.from(JSON.stringify(newUser)));
-    channel.sendToQueue("FEEDBACK:USER", Buffer.from(JSON.stringify(newUser)));
-    channel.sendToQueue("MOREINFO:USER", Buffer.from(JSON.stringify(newUser)));
-    channel.sendToQueue("NOTE:USER", Buffer.from(JSON.stringify(newUser)));
-    channel.sendToQueue("PROCEDURE:USER", Buffer.from(JSON.stringify(newUser)));
-    channel.sendToQueue("PYTHON:USER", Buffer.from(JSON.stringify(newUser)));
-    return res.json({ message: "User Successfully created" });
-  } catch (error) {
-    next(error);
   }
-}
-
-//login
-async function login(req, res, next) {
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.json({ message: "User does not exists" });
-    const payload = {
-      id: user._id,
+    const newFirebaseUser = await firebaseAdmin.auth.createUser({
       email,
-      name: user.name,
-    };
-
-    EventEmitter.emit("signIn", {payload});
-    jwt.sign(payload, "secret", (err, token) => {
-      if (err) return res.status(500).json({ message: "Error in SignIn" });
-      return res.json({ token });
+      password,
     });
-  } catch (error) {
-    next(error);
+    if (newFirebaseUser) {
+      await User.insertOne({
+        email,
+        name,
+        firebaseId: newFirebaseUser.uid,
+      });
+    }
+    return res
+      .status(200)
+      .json({ success: "Account created successfully. Please sign in." });
+  } catch (err) {
+    if (err.code === "auth/email-already-exists") {
+      return res
+        .status(400)
+        .json({ error: "User account already exists at email address." });
+    }
+    return res.status(500).json({ error: "Server error. Please try again" });
   }
-}
+};
 
-async function profile(req, res, next) {
+const firebaseGoogleSignin = async (req, res) => {
+  const { email, name, uid } = req.body;
+  const filter = { email: email };
+  const update = { $setOnInsert: { name: name, firebaseId: uid } };
+  const options = { upsert: true };
   try {
-    await redisClient.connect();
-    const user = await redisClient.get(req.user.id);
-    await redisClient.disconnect();
-    return res.send({ data: JSON.parse(user) });
-  } catch (error) {
-    next(error);
+    await User.updateOne(filter, update, options);
+    return res
+      .status(200)
+      .json({ success: "Google Account logged successfully. Please sign in." });
+  } catch (err) {
+    console.log(err.code);
+    return res.status(500).json({ error: "Server error. Please try again" });
   }
-}
+};
 
-module.exports = { register, login, profile };
+module.exports = {validate, register, firebaseGoogleSignin}

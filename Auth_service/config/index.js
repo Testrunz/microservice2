@@ -19,15 +19,20 @@ async function db() {
   });
 }
 
-const redisClient = createClient({
-  socket: { port: process.env.REDIS_PORT, host: process.env.REDIS_HOST },
-});
-redisClient.on("error", (err) => console.log("Redis Client Error", err));
+async function redisConnect() {
+  const redisClient = createClient({
+    url: `redis://default:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+  });
+  redisClient.on("error", (err) => console.log("Redis Client Error", err));
+  await redisClient.connect();
+  console.log("Redis client connection ", redisClient.isReady);
+  return redisClient;
+}
 
 async function connectMessageQue() {
   try {
     connection = await amqp.connect(
-      `amqp://${process.env.AMQP_HOST}:${process.env.AMQP_PORT}`,
+      `${process.env.RABBIT_MQ_URI}`,
       (err, conn) => {
         if (err) throw err;
         return conn;
@@ -41,4 +46,4 @@ async function connectMessageQue() {
   }
 }
 
-module.exports = { db, redisClient, connectMessageQue };
+module.exports = { db, redisConnect, connectMessageQue };

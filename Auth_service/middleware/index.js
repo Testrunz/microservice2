@@ -1,19 +1,31 @@
-const jwt = require("jsonwebtoken");
+const firebaseAdmin = require("../services/firebase");
 
 const User = require("../models/User");
 
 async function isAuthenticated(req, res, next) {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-  if (token == null) return res.sendStatus(401)
-  jwt.verify(token, "secret", async(err, user) => {
-    if (err) return res.status(403).json({ message: "User not authorized" });
-    const userExits = await User.findOne({ _id: user.id });
-    if (!userExits) return res.sendStatus(404)
+  try {
+    let firebaseUser;
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (token) {
+      firebaseUser = await firebaseAdmin.auth.verifyIdToken(token);
+    }
+    if (!firebaseUser) return res.sendStatus(401);
+    const user = await User.findOne({
+      firebaseId: firebaseUser.user_id,
+    });
+    if (!user) {
+      return res.sendStatus(401);
+    }
+
     req.user = user;
+
     next();
-  });
+  } catch (err) {
+    res.sendStatus(401);
+  }
 }
+
 const errorLogger = (err, req, res, next) => {
   console.error("\x1b[31m", err);
   next(err);
@@ -28,5 +40,9 @@ const invalidPathHandler = (req, res, next) => {
   res.redirect("/error");
 };
 
-
-module.exports = {isAuthenticated, errorLogger, errorResponder, invalidPathHandler }
+module.exports = {
+  isAuthenticated,
+  errorLogger,
+  errorResponder,
+  invalidPathHandler,
+};

@@ -4,7 +4,7 @@ const compression = require("compression");
 const cors = require("cors");
 
 const router = require("./routes");
-const { db, connectMessageQue } = require("./config");
+const { db, redisConnect, connectMessageQue } = require("./config");
 const {
   errorLogger,
   errorResponder,
@@ -19,7 +19,7 @@ function bootstrap() {
   app.use(express.urlencoded({ extended: true }));
 
   app.use(router);
-
+  
   app.use(errorLogger);
   app.use(errorResponder);
   app.use(invalidPathHandler);
@@ -33,9 +33,15 @@ function bootstrap() {
 }
 
 db()
-  .then(async() => {
+  .then(async () => {
     bootstrap();
-    await connectMessageQue();
+   // await connectMessageQue();
+    //amqClt.sendToQueue(process.env.RABBIT_MQ_AUTH_QUEUE, Buffer.from('something to do'));
+   // amqClt.purgeQueue(process.env.RABBIT_MQ_AUTH_QUEUE, function(err, ok) {console.log(err); console.log(ok);});
+   // await redisConnect();
+    // rdsCtl.set("key", "value")
+    // await rdsCtl.get('key')
+    // await rdsCtl.disconnect()
   })
   .catch((err) => {
     console.error(err);
