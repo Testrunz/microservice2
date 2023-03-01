@@ -23,6 +23,7 @@ function bootstrap() {
   app.use(errorResponder);
   app.use(invalidPathHandler);
   app.get("/error", (req, res) => {
+    console.log("ERROR message");
    return res.send("The endpoint you are trying to reach does not exist.");
   });
 
