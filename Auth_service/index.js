@@ -18,7 +18,6 @@ function bootstrap() {
   app.use(express.json({ limit: "100mb" }));
   app.use(express.urlencoded({ extended: true }));
 
-  app.use(router);
   
   app.use(errorLogger);
   app.use(errorResponder);
@@ -26,7 +25,9 @@ function bootstrap() {
   app.get("/error", (req, res) => {
     res.send("The endpoint you are trying to reach does not exist.");
   });
-
+  
+  app.use(router);
+  
   app.listen(process.env.PORT, '0.0.0.0', () => {
     console.log(`Auth Service running on ${process.env.PORT}`);
   });
