@@ -26,6 +26,57 @@ async function isAuthenticated(req, res, next) {
   }
 }
 
+const commonRole = (req, res, next) => {
+  try {
+    const role = req.user.role;
+    if (["superadmin", "admin", "teacher", "student"].includes(role)) {
+      next();
+    }
+  } catch (err) {
+    res.sendStatus(401);
+  }
+};
+const studentRole = (req, res, next) => {
+  try {
+    const role = req.user.role;
+    if (role === "student") {
+      next();
+    }
+  } catch (err) {
+    res.sendStatus(401);
+  }
+};
+const teacherRole = (req, res, next) => {
+  try {
+    const role = req.user.role;
+    if (role === "teacher") {
+      next();
+    }
+  } catch (err) {
+    res.sendStatus(401);
+  }
+};
+const adminRole = (req, res, next) => {
+  try {
+    const role = req.user.role;
+    if (role === "admin") {
+      next();
+    }
+  } catch (err) {
+    res.sendStatus(401);
+  }
+};
+const superAdminRole = (req, res, next) => {
+  try {
+    const role = req.user.role;
+    if (role === "superadmin") {
+      next();
+    }
+  } catch (err) {
+    res.sendStatus(401);
+  }
+};
+
 const errorLogger = (err, req, res, next) => {
   console.error("\x1b[31m", err);
   next(err);
@@ -45,4 +96,9 @@ module.exports = {
   errorLogger,
   errorResponder,
   invalidPathHandler,
+  commonRole,
+  studentRole,
+  teacherRole,
+  adminRole,
+  studentRole,
 };
