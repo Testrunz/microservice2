@@ -37,7 +37,7 @@ const errorResponder = (err, req, res, next) => {
 };
 
 const invalidPathHandler = (req, res, next) => {
-  res.redirect("/error");
+  return res.send("The endpoint you are trying to reach does not exist.");
 };
 
 module.exports = {
