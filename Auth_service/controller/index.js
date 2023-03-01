@@ -20,7 +20,7 @@ const register = async (req, res) => {
       password,
     });
     if (newFirebaseUser) {
-      await User.insertOne({
+      await User.create({
         email,
         name,
         firebaseId: newFirebaseUser.uid,

@@ -6,9 +6,15 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
+      - analyticsapp
       - authapp
+      - calendarapp
+      - collegeapp
       - experimentapp
       - feedbackapp
+      - groupapp
+      - interfaceapp
+      - inventoryapp
       - moreinfoapp
       - noteapp
       - procedureapp
@@ -16,181 +22,94 @@ services:
     ports:
       - "8080:80"
     restart: always
-  redis:
-    image: 'bitnami/redis:latest'
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    volumes:
-        - ./redis/data:/bitnami/redis/data
+  analyticsapp:
+    build:
+      context: ../Analytic_service
     ports:
-      - '6379:6379'
-    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 100mb
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: 'rabbitmq'
-    ports:
-        - 5672:5672
-        - 15672:15672
+      - 2000:2000
     volumes:
-      - ./rabbitmq/data/:/var/lib/rabbitmq
-      - ./rabbitmq/log/:/var/log/rabbitmq
-  authdb:
-    image: mongo:latest
-    container_name: 'auth-db-container'
-    environment:
-      - MONGO_INITDB_DATABASE=auth
-      - MONGO_INITDB_ROOT_USERNAME=premnath
-      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
-    volumes:
-      - ./init-authmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-      - ./mongoauth-volume:/data/db
-    ports:
-      - '27017:27017'
-  experimentdb:
-    image: mongo:latest
-    container_name: 'experiment-db-container'
-    environment:
-      - MONGO_INITDB_DATABASE=experiment
-      - MONGO_INITDB_ROOT_USERNAME=premnath
-      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
-    volumes:
-      - ./init-experimentmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-      - ./mongoexperiment-volume:/data/db
-    ports:
-      - '27018:27017'
-  Feedbackdb:
-    image: mongo:latest
-    container_name: 'feedback-db-container'
-    environment:
-      - MONGO_INITDB_DATABASE=feedback
-      - MONGO_INITDB_ROOT_USERNAME=premnath
-      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
-    volumes:
-      - ./init-feedbackmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-      - ./mongofeedback-volume:/data/db
-    ports:
-      - '27019:27017'
-  MoreInfodb:
-    image: mongo:latest
-    container_name: 'moreinfo-db-container'
-    environment:
-      - MONGO_INITDB_DATABASE=moreinfo
-      - MONGO_INITDB_ROOT_USERNAME=premnath
-      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
-    volumes:
-      - ./init-moreinfomongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-      - ./mongomoreinfo-volume:/data/db
-    ports:
-      - '27020:27017'
-  Notedb:
-    image: mongo:latest
-    container_name: 'note-db-container'
-    environment:
-      - MONGO_INITDB_DATABASE=note
-      - MONGO_INITDB_ROOT_USERNAME=premnath
-      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
-    volumes:
-      - ./init-notemongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-      - ./mongonote-volume:/data/db
-    ports:
-      - '27021:27017'
-  Proceduredb:
-    image: mongo:latest
-    container_name: 'procedure-db-container'
-    environment:
-      - MONGO_INITDB_DATABASE=procedure
-      - MONGO_INITDB_ROOT_USERNAME=premnath
-      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
-    volumes:
-      - ./init-proceduremongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-      - ./mongoprocedure-volume:/data/db
-    ports:
-      - '27022:27017'
-  Pythondb:
-    image: mongo:latest
-    container_name: 'python-db-container'
-    environment:
-      - MONGO_INITDB_DATABASE=python
-      - MONGO_INITDB_ROOT_USERNAME=premnath
-      - MONGO_INITDB_ROOT_PASSWORD=Premnath123
-    volumes:
-      - ./init-pythonmongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-      - ./mongopython-volume:/data/db
-    ports:
-      - '27023:27017'
+      - ../Analytic_service:/usr/src/app
   authapp:
     build:
       context: ../Auth_service
-    depends_on:
-      - authdb
-      - redis
-      - rabbitmq
     ports:
-      - 7000:7000
+      - 3000:3000
     volumes:
       - ../Auth_service:/usr/src/app
+  calendarapp:
+    build:
+      context: ../Calendar_service
+    ports:
+      - 4000:4000
+    volumes:
+      - ../Calendar_service:/usr/src/app
+  collegeapp:
+    build:
+      context: ../College_service
+    ports:
+      - 5000:5000
+    volumes:
+      - ../College_service:/usr/src/app
   experimentapp:
     build:
       context: ../Experiment_service
-    depends_on:
-     - experimentdb
-     - redis
-     - rabbitmq
     ports:
-      - 8000:8000
+      - 6000:6000
     volumes:
       - ../Experiment_service:/usr/src/app
   feedbackapp:
     build:
       context: ../Feedback_service
-    depends_on:
-     - Feedbackdb
-     - redis
-     - rabbitmq
+    ports:
+      - 7000:7000
+    volumes:
+      - ../Feedback_service:/usr/src/app
+  groupapp:
+    build:
+      context: ../Group_service
+    ports:
+      - 8000:8000
+    volumes:
+      - ../Group_service:/usr/src/app
+  interfaceapp:
+    build:
+      context: ../Interface_service
     ports:
       - 9000:9000
     volumes:
-      - ../Feedback_service:/usr/src/app
+      - ../Interface_service:/usr/src/app
+  inventoryapp:
+    build:
+      context: ../Inventory_service
+    ports:
+      - 9100:9100
+    volumes:
+      - ../Inventory_service:/usr/src/app
   moreinfoapp:
     build:
       context: ../MoreInfo_service
-    depends_on:
-     - MoreInfodb
-     - redis
-     - rabbitmq
     ports:
-      - 5000:5000
+      - 9200:9200
     volumes:
       - ../MoreInfo_service:/usr/src/app
   noteapp:
     build:
       context: ../Note_service
-    depends_on:
-     - Notedb
-     - redis
-     - rabbitmq
     ports:
-      - 4000:4000
+      - 9300:9300
     volumes:
       - ../Note_service:/usr/src/app
   procedureapp:
     build:
       context: ../Procedure_service
-    depends_on:
-     - Proceduredb
-     - redis
-     - rabbitmq
     ports:
-      - 2000:2000
+      - 9400:9400
     volumes:
       - ../Procedure_service:/usr/src/app
   pythonapp:
     build:
       context: ../Python_service
-    depends_on:
-     - redis
-     - rabbitmq
     ports:
-      - 6000:6000
+      - 9500:9500
     volumes:
       - ../Python_service:/usr/src/app
