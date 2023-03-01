@@ -23,9 +23,9 @@ function bootstrap() {
   app.use(errorResponder);
   app.use(invalidPathHandler);
   app.get("/error", (req, res) => {
-    res.send("The endpoint you are trying to reach does not exist.");
+   return res.send("The endpoint you are trying to reach does not exist.");
   });
-  
+
   app.use(router);
   
   app.listen(process.env.PORT, '0.0.0.0', () => {
