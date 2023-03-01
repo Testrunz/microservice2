@@ -27,7 +27,7 @@ function bootstrap() {
     res.send("The endpoint you are trying to reach does not exist.");
   });
 
-  app.listen(process.env.PORT, () => {
+  app.listen(process.env.PORT, '0.0.0.0', () => {
     console.log(`Auth Service running on ${process.env.PORT}`);
   });
 }
