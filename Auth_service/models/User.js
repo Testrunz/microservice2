@@ -19,7 +19,7 @@ const UserSchema = new Schema({
   },
   timeZone: {
     type: String,
-    default: "Asia/Kolkata",
+    default: "Asia/Calcutta",
   },
   role: {
     type: String,

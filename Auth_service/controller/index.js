@@ -7,7 +7,7 @@ const validate = async (req, res) => {
 };
 
 const register = async (req, res) => {
-  const { email, name, password } = req.body;
+  const { email, name, password, timeZone } = req.body;
   if (!email || !name || !password) {
     return res.status(400).json({
       error:
@@ -24,6 +24,7 @@ const register = async (req, res) => {
         email,
         name,
         firebaseId: newFirebaseUser.uid,
+        timeZone
       });
     }
     return res
@@ -40,9 +41,9 @@ const register = async (req, res) => {
 };
 
 const firebaseGoogleSignin = async (req, res) => {
-  const { email, name, uid } = req.body;
+  const { email, name, uid, timeZone } = req.body;
   const filter = { email: email };
-  const update = { $setOnInsert: { name: name, firebaseId: uid } };
+  const update = { $setOnInsert: { name: name, timeZone: timeZone, firebaseId: uid } };
   const options = { upsert: true };
   try {
     await User.updateOne(filter, update, options);
