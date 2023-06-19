@@ -1,0 +1,18 @@
+[{
+  "_id": {
+    "$oid": "6452f714a19c01d6d0493006"
+  },
+  "name": "prem",
+  "email": "prem+11@learnytech.com",
+  "userId": "6451e50d33620a02fc307be8",
+  "role": "student",
+  "runzId": [
+    {
+      "$oid": "6452fd4ddbd7ed0f42e3121d"
+    },
+    {
+      "$oid": "6455d83cdacdcc9767c66a61"
+    }
+  ],
+  "__v": 0
+}]

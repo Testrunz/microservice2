@@ -1,0 +1,27 @@
+[{
+  "_id": {
+    "$oid": "6452b40764bf57bc2b80065f"
+  },
+  "name": "prem",
+  "email": "prem+11@learnytech.com",
+  "userId": "6451e50d33620a02fc307be8",
+  "role": "student",
+  "__v": 6,
+  "procedureIds": [
+    {
+      "$oid": "6452c456652632045109dade"
+    },
+    {
+      "$oid": "6452c55cf79192d3c169028d"
+    },
+    {
+      "$oid": "6452c5ecf79192d3c1690292"
+    },
+    {
+      "$oid": "6452c688f79192d3c1690297"
+    },
+    {
+      "$oid": "6452d4a6a63f201a57931f4f"
+    }
+  ]
+}]

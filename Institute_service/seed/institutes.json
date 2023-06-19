@@ -1,0 +1,46 @@
+[{
+  "ProcedureName": "Bed Room Wiring",
+  "labtype": "BEEE",
+  "department": "All",
+  "year": 1,
+  "semester": 1,
+  "category": "college",
+  "university": "Pondicherry University",
+  "institutes": "Manakula Vinayagar"
+},{
+  "ProcedureName": "Doctor Room Wiring",
+  "labtype": "BEEE",
+  "department": "All",
+  "year": 1,
+  "semester": 1,
+  "category": "college",
+  "university": "Pondicherry University",
+  "institute": "Pondicherry University"
+},{
+  "ProcedureName": "EDTA Magnesium",
+  "labtype": "Chemistry",
+  "department": "All",
+  "year": 1,
+  "semester": 1,
+  "category": "college",
+  "university": "Pondicherry University",
+  "institute": "Pondicherry University"
+},{
+  "ProcedureName": "Polarimeter",
+  "labtype": "Physics",
+  "department": "All",
+  "year": 1,
+  "semester": 1,
+  "category": "college",
+  "university": "Pondicherry University",
+  "institute": "Achariya"
+},{
+  "ProcedureName": "Vibration Magnetometer",
+  "labtype": "Physics",
+  "department": "All",
+  "year": 1,
+  "semester": 1,
+  "category": "college",
+  "university": "Pondicherry University",
+  "institute": "Pondicherry University"
+}]

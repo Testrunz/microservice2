@@ -1,0 +1,18 @@
+[{
+  "email": "prem+11@learnytech.com",
+  "userId": "6456126eaa78e37a216c5430",
+  "labtype": [
+    "Physics",
+    "Chemistry"
+  ],
+  "name": "prem",
+  "role": "student",
+  "showOnce": true,
+  "country": "India",
+  "department": "Physics",
+  "institute": "Pondicherry University",
+  "semester": 1,
+  "state": "Pondicherry",
+  "university": "Pondicherry University",
+  "year": 1
+}]

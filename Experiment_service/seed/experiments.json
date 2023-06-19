@@ -1,0 +1,19 @@
+[{
+  "_id": {
+    "$oid": "6452e63c74a54f5c47c4616c"
+  },
+  "procedureId": "6452c456652632045109dade",
+  "status": "viewed",
+  "datas": "{\"value_WgYrb86\":\"0.001\",\"value_TYlTMZ-\":\"7\",\"value_w7rP6sW\":\"2\",\"value_jmu4V3m\":\"2\",\"value_K0QMbXR\":\"2\",\"value_Yb1l_4X\":\"2\",\"value_bg5mtIV\":\"2\",\"value_rWyx8n_\":\"2\",\"value_3W1Y0M8\":\"2\",\"value_Hl2nvwF\":\"2\",\"value_eDmmobG\":\"2\",\"value_g-DX9mr\":\"2\",\"value_wPxV5qp\":\"2\",\"value_eqisow3\":\"2\",\"value__2kfrYw\":\"2\",\"value_cxen-1q\":\"2\",\"value_4KU56Jt\":\"2\",\"value_beb3Oco\":\"2\",\"value_oG6EW20\":\"2\",\"value_UUp5w1k\":\"2\",\"value_jwBGqyn\":\"2\",\"value_cL8-L8N\":\"2\",\"value_pnyj1MP\":\"2\",\"value_-C07Mv4\":\"2\",\"value_GyMoj96\":\"2\",\"value_0LwYUrb\":\"2\",\"value_GYh82ja\":\"2\",\"value_ZnV5jNs\":\"2\",\"value_Bz07JKR\":\"2\",\"value_qazLz3K\":\"2\",\"value_A_SmosA\":\"2\",\"value_tdrpkoS\":\"2\",\"value_dv8vDGQ\":\"2\",\"value_ZIF67pi\":\"2\",\"value_F1ALINe\":\"2\",\"value_LMHpVF6\":\"2\",\"value_imVdg_a\":\"2\",\"value_qR1Q1iF\":\"2\",\"value_HkGWk4V\":\"2\",\"value_c-AlmQV\":\"2\",\"value_yvVmwWG\":\"2\",\"value_3MDN38y\":\"2\"}",
+  "shareWith": [],
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "6452e82f74a54f5c47c46171"
+  },
+  "procedureId": "6452c55cf79192d3c169028d",
+  "status": "opened",
+  "datas": "{\"value_97RGDAG\":\"1\",\"value_IOsYTVC\":\"2\",\"value_Escmipc\":\"3\",\"value_FHNHmUf\":\"2\",\"value_400DpP4\":\"3\",\"value_Dxi5esd\":\"2\",\"value_oPIOEDR\":\"3\",\"value_VGGvlan\":\"2\",\"value_riH-ZGs\":\"3\",\"value_6MhRkvE\":\"2\",\"value_VpuzYQu\":\"3\",\"value_WDOHsKq\":\"2\",\"value_kogxJR2\":\"3\",\"value_Gd3KEsg\":\"2\",\"value_zGQFdP6\":\"3\",\"value_ZlWvXJq\":\"12\",\"value_KKukWHu\":\"3\",\"value_cN7TNjC\":\"12\",\"value_zE-GrED\":\"2\",\"value_d8yjWL7\":\"3\",\"value_zPQCNQU\":\"1\",\"value_EAfse9L\":\"2\",\"value_CDLPPYt\":\"3\",\"value_bjIkgjm\":\"1\",\"value_dUK7kFX\":\"2\",\"value_o_0DI4r\":\"3\",\"value_DfQcDW9\":\"1\",\"value_cQHMUKY\":\"2\",\"value_LVkzNJU\":\"3\",\"value_WutW7I0\":\"12\",\"value_RwtyELj\":\"2\",\"value_n1rwUUV\":\"3\",\"value_577TN9w\":\"3\",\"value_hfRzew8\":\"2\",\"value_BK9oyE6\":\"2\",\"value_jZCBWyA\":\"3\",\"value_pI7Jos1\":\"5\",\"value_IA2GVpm\":\"2\",\"value_6B59uZU\":\"2\",\"value_KhOqcM4\":\"1\",\"value_9jd9lBl\":\"2\",\"value_lFt1AIh\":\"3\",\"value_326PECW\":\"2\",\"value_LzPJR4l\":\"23\",\"value_ClDyAUO\":\"3\",\"value__8Jr8Zz\":\"6\",\"value_cqOckAS\":\"2\",\"value_w26sxju\":\"1\",\"value_5NPy6Hk\":\"2\",\"value_pWyIdky\":\"3\",\"value_CfBN1FP\":\"5\",\"value_OXSly6B\":\"2\",\"value_i1WjfnH\":\"2\",\"value_Ne-2dRp\":\"21\",\"value_NyB1FyX\":\"21\",\"value_UtyCj8S\":\"2\",\"value_1PbCjBr\":\"3\",\"value_dkRjNzZ\":\"1\",\"value_1ZboDsK\":\"2\",\"value_yPlnQRY\":\"4\",\"value_xXNJ19n\":\"2\",\"value_WKxMPED\":\"3\",\"value_YcgeQHV\":\"5\",\"value_1X1vgkB\":\"2\",\"value_LU1bEqq\":\"3\",\"value_WSAIjGe\":\"5\",\"value_jvboV5y\":\"3\"}",
+  "shareWith": [],
+  "__v": 0
+}]

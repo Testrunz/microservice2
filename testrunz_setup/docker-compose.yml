@@ -1,0 +1,115 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: reverse_proxy
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - analyticsapp
+      - authapp
+      - calendarapp
+      - collegeapp
+      - experimentapp
+      - feedbackapp
+      - groupapp
+      - interfaceapp
+      - inventoryapp
+      - moreinfoapp
+      - noteapp
+      - procedureapp
+      - pythonapp
+    ports:
+      - "8080:80"
+    restart: always
+  analyticsapp:
+    build:
+      context: ../Analytic_service
+    ports:
+      - 2000:2000
+    volumes:
+      - ../Analytic_service:/usr/src/app
+  authapp:
+    build:
+      context: ../Auth_service
+    ports:
+      - 3000:3000
+    volumes:
+      - ../Auth_service:/usr/src/app
+  calendarapp:
+    build:
+      context: ../Calendar_service
+    ports:
+      - 4000:4000
+    volumes:
+      - ../Calendar_service:/usr/src/app
+  collegeapp:
+    build:
+      context: ../College_service
+    ports:
+      - 5000:5000
+    volumes:
+      - ../College_service:/usr/src/app
+  experimentapp:
+    build:
+      context: ../Experiment_service
+    ports:
+      - 6000:6000
+    volumes:
+      - ../Experiment_service:/usr/src/app
+  feedbackapp:
+    build:
+      context: ../Feedback_service
+    ports:
+      - 7000:7000
+    volumes:
+      - ../Feedback_service:/usr/src/app
+  groupapp:
+    build:
+      context: ../Group_service
+    ports:
+      - 8000:8000
+    volumes:
+      - ../Group_service:/usr/src/app
+  interfaceapp:
+    build:
+      context: ../Interface_service
+    ports:
+      - 9000:9000
+    volumes:
+      - ../Interface_service:/usr/src/app
+  inventoryapp:
+    build:
+      context: ../Inventory_service
+    ports:
+      - 9100:9100
+    volumes:
+      - ../Inventory_service:/usr/src/app
+  moreinfoapp:
+    build:
+      context: ../MoreInfo_service
+    ports:
+      - 9200:9200
+    volumes:
+      - ../MoreInfo_service:/usr/src/app
+  noteapp:
+    build:
+      context: ../Note_service
+    ports:
+      - 9300:9300
+    volumes:
+      - ../Note_service:/usr/src/app
+  procedureapp:
+    build:
+      context: ../Procedure_service
+    ports:
+      - 9400:9400
+    volumes:
+      - ../Procedure_service:/usr/src/app
+  pythonapp:
+    build:
+      context: ../Python_service
+    ports:
+      - 9500:9500
+    volumes:
+      - ../Python_service:/usr/src/app
