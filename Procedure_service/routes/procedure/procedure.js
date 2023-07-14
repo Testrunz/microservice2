@@ -7,7 +7,7 @@ const {
   editprocedureById,
   deleteprocedureById,
 } = require("../../controller");
-const { isAuthenticatedProcedure, commonRole } = require("../../../middleware");
+const { isAuthenticatedProcedure, commonRole } = require("../../middleware");
 const router = new Router();
 
 router.post(

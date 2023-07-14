@@ -1,7 +1,7 @@
 const { Router } = require("express");
 
 const { createChart, listCharts, readInflux } = require("../../controller");
-const { isAuthenticatedChart, commonRole } = require("../../../middleware");
+const { isAuthenticatedChart, commonRole } = require("../../middleware");
 
 const router = new Router();
 

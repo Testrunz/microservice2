@@ -4,7 +4,7 @@ const { dummy } = require("../../controller");
 const {
   isAuthenticatedCodeEditor,
   commonRole,
-} = require("../../../middleware");
+} = require("../../middleware");
 
 const router = new Router();
 

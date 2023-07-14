@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const { playPython } = require("../../controller");
 
-const { isAuthenticatedRunz, commonRole } = require("../../../middleware");
+const { isAuthenticatedRunz, commonRole } = require("../../middleware");
 
 const router = new Router();
 

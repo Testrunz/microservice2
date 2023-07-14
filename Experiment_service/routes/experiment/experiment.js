@@ -8,7 +8,7 @@ const {
 const {
   isAuthenticatedExperiment,
   commonRole,
-} = require("../../../middleware");
+} = require("../../middleware");
 const router = new Router();
 
 router.post(

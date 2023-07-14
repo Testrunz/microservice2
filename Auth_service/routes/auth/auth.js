@@ -2,7 +2,7 @@ const { Router } = require("express");
 
 const { validate, register, firebaseGoogleSignin } = require("../../controller");
 
-const { isAuthenticated, commonRole } = require("../../../middleware");
+const { isAuthenticated, commonRole } = require("../../middleware");
 
 const router = new Router();
 

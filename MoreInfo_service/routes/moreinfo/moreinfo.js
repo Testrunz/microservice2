@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const { findAllInfo, findInfo, updateInfo, addLabs, removeLabs } = require("../../controller");
-const { isAuthenticatedMoreInfo, commonRole } = require("../../../middleware");
+const { isAuthenticatedMoreInfo, commonRole } = require("../../middleware");
 
 const router = new Router();
 

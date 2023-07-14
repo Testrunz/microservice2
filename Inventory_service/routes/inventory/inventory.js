@@ -8,7 +8,7 @@ const {
   editInventory,
   deleteInventory,
 } = require("../../controller");
-const { isAuthenticatedInventory, commonRole } = require("../../../middleware");
+const { isAuthenticatedInventory, commonRole } = require("../../middleware");
 
 const router = new Router();
 
