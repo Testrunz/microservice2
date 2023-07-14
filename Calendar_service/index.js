@@ -9,7 +9,7 @@ const {
   errorLogger,
   errorResponder,
   invalidPathHandler,
-} = require("../middleware");
+} = require("./middleware");
 
 function bootstrap() {
   const app = express();
