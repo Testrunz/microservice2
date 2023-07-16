@@ -16,12 +16,10 @@ async function isAuthenticated(req, res, next) {
     if (!user) {
       return res.sendStatus(401);
     }
-
     req.user = user;
-
-    next();
+   return next();
   } catch (err) {
-    res.sendStatus(401);
+    return res.sendStatus(401);
   }
 }
 
@@ -36,20 +34,74 @@ const commonRole = (req, res, next) => {
         "labadmin",
         "teacher",
         "student",
+        "requester",
+        "tester",
+        "admin",
       ].includes(role)
     ) {
-      next();
+      return next();
     }
+    throw new Error('This is not role support.');
   } catch (err) {
     res.sendStatus(401);
   }
 };
+
+const requesterRole = (req, res, next) => {
+  try {
+    const role = req.user.role;
+    if (role === "requester") {
+      return next();
+    }
+    throw new Error('This is not role support.');
+  } catch (err) {
+    res.sendStatus(401);
+  }
+};
+
+const testerRole = (req, res, next) => {
+  try {
+    const role = req.user.role;
+    if (role === "tester") {
+      return next();
+    }
+    throw new Error('This is not role support.');
+  } catch (err) {
+    res.sendStatus(401);
+  }
+};
+
+const adminRole = (req, res, next) => {
+  try {
+    const role = req.user.role;
+    if (role === "admin") {
+      return next();
+    }
+    throw new Error('This is not role support.');
+  } catch (err) {
+    res.sendStatus(401);
+  }
+};
+
+const requesterOrAdminRole = (req, res, next) => {
+  try {
+    const role = req.user.role;
+    if (["requester", "admin"].includes(role)) {
+      return next();
+    }
+    throw new Error('This is not role support.');
+  } catch (err) {
+    res.sendStatus(401);
+  }
+};
+
 const studentRole = (req, res, next) => {
   try {
     const role = req.user.role;
     if (role === "student") {
-      next();
+      return next();
     }
+    throw new Error('This is not role support.');
   } catch (err) {
     res.sendStatus(401);
   }
@@ -58,8 +110,9 @@ const teacherRole = (req, res, next) => {
   try {
     const role = req.user.role;
     if (role === "teacher") {
-      next();
+      return next();
     }
+    throw new Error('This is not role support.');
   } catch (err) {
     res.sendStatus(401);
   }
@@ -68,8 +121,9 @@ const labadminRole = (req, res, next) => {
   try {
     const role = req.user.role;
     if (role === "labadmin") {
-      next();
+      return next();
     }
+    throw new Error('This is not role support.');
   } catch (err) {
     res.sendStatus(401);
   }
@@ -78,8 +132,9 @@ const collegeorinstitueadminRole = (req, res, next) => {
   try {
     const role = req.user.role;
     if (role === "collegeorinstitueadmin") {
-      next();
+      return  next();
     }
+    throw new Error('This is not role support.');
   } catch (err) {
     res.sendStatus(401);
   }
@@ -88,8 +143,9 @@ const regionaladminRole = (req, res, next) => {
   try {
     const role = req.user.role;
     if (role === "regionaladmin") {
-      next();
+      return next();
     }
+    throw new Error('This is not role support.');
   } catch (err) {
     res.sendStatus(401);
   }
@@ -98,21 +154,24 @@ const superAdminRole = (req, res, next) => {
   try {
     const role = req.user.role;
     if (role === "superadmin") {
-      next();
+      return next();
     }
+    throw new Error('This is not role support.');
   } catch (err) {
     res.sendStatus(401);
   }
 };
 
 const errorLogger = (err, req, res, next) => {
-  console.error("\x1b[31m", err);
-  next(err);
+  return next(err);
 };
 
 const errorResponder = (err, req, res, next) => {
+  if(err){
   res.header("Content-Type", "application/json");
-  res.status(err.statusCode).send(JSON.stringify(err, null, 4));
+  return res.status(err.statusCode).send(JSON.stringify(err, null, 4));
+  }
+  return next();
 };
 
 const invalidPathHandler = (req, res, next) => {
@@ -125,6 +184,10 @@ module.exports = {
   errorResponder,
   invalidPathHandler,
   commonRole,
+  requesterRole,
+  testerRole,
+  adminRole,
+  requesterOrAdminRole,
   studentRole,
   teacherRole,
   labadminRole,

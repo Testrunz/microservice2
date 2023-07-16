@@ -92,4 +92,57 @@ const firebaseGoogleSignin = async (req, res) => {
   }
 };
 
-module.exports = { validate, register, firebaseGoogleSignin };
+const firebaseMicrosoftSignin = async (req, res) => {
+  const { email, name, uid, timeZone } = req.body;
+  const filter = { email: email };
+  const update = {
+    $setOnInsert: { name: name, timeZone: timeZone, firebaseId: uid },
+  };
+  const options = { upsert: true };
+  try {
+    await User.updateOne(filter, update, options);
+    return res.status(200).json({
+      success: "Microsoft Account logged successfully. Please sign in.",
+    });
+  } catch (err) {
+    console.log(err.code);
+    return res.status(500).json({ error: "Server error. Please try again" });
+  }
+};
+
+const firebaseLinkedInSignin = async (req, res) => {
+  const { email, name, uid, timeZone } = req.body;
+  const filter = { email: email };
+  const update = {
+    $setOnInsert: { name: name, timeZone: timeZone, firebaseId: uid },
+  };
+  const options = { upsert: true };
+  try {
+    await User.updateOne(filter, update, options);
+    return res.status(200).json({
+      success: "Linkedin Account logged successfully. Please sign in.",
+    });
+  } catch (err) {
+    console.log(err.code);
+    return res.status(500).json({ error: "Server error. Please try again" });
+  }
+};
+
+const findAllUser = async (req, res) => {
+  try {
+    const users = await User.find({});
+    return res.json([...users]);
+  } catch (err) {
+    console.log(err.code);
+    return res.status(500).json({ error: "Server error. Please try again" });
+  }
+};
+
+module.exports = {
+  validate,
+  register,
+  firebaseGoogleSignin,
+  firebaseMicrosoftSignin,
+  firebaseLinkedInSignin,
+  findAllUser,
+};

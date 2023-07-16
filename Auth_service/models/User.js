@@ -26,8 +26,8 @@ const UserSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ["superadmin", "regionaladmin", "collegeorinstitueadmin", "labadmin", "teacher", "student"],
-    default: "student",
+    enum: ["superadmin", "regionaladmin", "collegeorinstitueadmin", "labadmin", "teacher", "student", "requester", "tester", "admin"],
+    default: "tester",
   },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
