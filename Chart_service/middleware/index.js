@@ -1,4 +1,5 @@
 const ChartUser = require("../models/User");
+const firebaseAdmin = require("../services/firebase");
 
 async function isAuthenticatedChart(req, res, next) {
   try {
@@ -33,6 +34,9 @@ const commonRole = (req, res, next) => {
         "labadmin",
         "teacher",
         "student",
+        "requester",
+        "tester",
+        "admin",
       ].includes(role)
     ) {
       next();
@@ -41,80 +45,136 @@ const commonRole = (req, res, next) => {
     res.sendStatus(401);
   }
 };
-const studentRole = (req, res, next) => {
-  try {
-    const role = req.user.role;
-    if (role === "student") {
-      next();
+const requesterRole = (req, res, next) => {
+    try {
+      const role = req.user.role;
+      if (role === "requester") {
+        return next();
+      }
+      throw new Error('This is not role support.');
+    } catch (err) {
+      res.sendStatus(401);
     }
-  } catch (err) {
-    res.sendStatus(401);
-  }
-};
-const teacherRole = (req, res, next) => {
-  try {
-    const role = req.user.role;
-    if (role === "teacher") {
-      next();
+  };
+  
+  const testerRole = (req, res, next) => {
+    try {
+      const role = req.user.role;
+      if (role === "tester") {
+        return next();
+      }
+      throw new Error('This is not role support.');
+    } catch (err) {
+      res.sendStatus(401);
     }
-  } catch (err) {
-    res.sendStatus(401);
-  }
-};
-const labadminRole = (req, res, next) => {
-  try {
-    const role = req.user.role;
-    if (role === "labadmin") {
-      next();
+  };
+  
+  const adminRole = (req, res, next) => {
+    try {
+      const role = req.user.role;
+      if (role === "admin") {
+        return next();
+      }
+      throw new Error('This is not role support.');
+    } catch (err) {
+      res.sendStatus(401);
     }
-  } catch (err) {
-    res.sendStatus(401);
-  }
-};
-const collegeorinstitueadminRole = (req, res, next) => {
-  try {
-    const role = req.user.role;
-    if (role === "collegeorinstitueadmin") {
-      next();
+  };
+  
+  const requesterOrAdminRole = (req, res, next) => {
+    try {
+      const role = req.user.role;
+      if (["requester", "admin"].includes(role)) {
+        return next();
+      }
+      throw new Error('This is not role support.');
+    } catch (err) {
+      res.sendStatus(401);
     }
-  } catch (err) {
-    res.sendStatus(401);
-  }
-};
-const regionaladminRole = (req, res, next) => {
-  try {
-    const role = req.user.role;
-    if (role === "regionaladmin") {
-      next();
+  };
+  
+  const studentRole = (req, res, next) => {
+    try {
+      const role = req.user.role;
+      if (role === "student") {
+        return next();
+      }
+      throw new Error('This is not role support.');
+    } catch (err) {
+      res.sendStatus(401);
     }
-  } catch (err) {
-    res.sendStatus(401);
-  }
-};
-const superAdminRole = (req, res, next) => {
-  try {
-    const role = req.user.role;
-    if (role === "superadmin") {
-      next();
+  };
+  const teacherRole = (req, res, next) => {
+    try {
+      const role = req.user.role;
+      if (role === "teacher") {
+        return next();
+      }
+      throw new Error('This is not role support.');
+    } catch (err) {
+      res.sendStatus(401);
     }
-  } catch (err) {
-    res.sendStatus(401);
-  }
-};
-
-const errorLogger = (err, req, res, next) => {
-  console.error("\x1b[31m", err);
-  next(err);
-};
-
-const errorResponder = (err, req, res, next) => {
-  res.header("Content-Type", "application/json");
-  res.status(err.statusCode).send(JSON.stringify(err, null, 4));
-};
-
-const invalidPathHandler = (req, res, next) => {
-  return res.send("The endpoint you are trying to reach does not exist.");
-};
+  };
+  const labadminRole = (req, res, next) => {
+    try {
+      const role = req.user.role;
+      if (role === "labadmin") {
+        return next();
+      }
+      throw new Error('This is not role support.');
+    } catch (err) {
+      res.sendStatus(401);
+    }
+  };
+  const collegeorinstitueadminRole = (req, res, next) => {
+    try {
+      const role = req.user.role;
+      if (role === "collegeorinstitueadmin") {
+        return  next();
+      }
+      throw new Error('This is not role support.');
+    } catch (err) {
+      res.sendStatus(401);
+    }
+  };
+  const regionaladminRole = (req, res, next) => {
+    try {
+      const role = req.user.role;
+      if (role === "regionaladmin") {
+        return next();
+      }
+      throw new Error('This is not role support.');
+    } catch (err) {
+      res.sendStatus(401);
+    }
+  };
+  const superAdminRole = (req, res, next) => {
+    try {
+      const role = req.user.role;
+      if (role === "superadmin") {
+        return next();
+      }
+      throw new Error('This is not role support.');
+    } catch (err) {
+      res.sendStatus(401);
+    }
+  };
+  
+  const errorLogger = (err, req, res, next) => {
+    return next(err);
+  };
+  
+  const errorResponder = (err, req, res, next) => {
+    if(err){
+    res.header("Content-Type", "application/json");
+    return res.status(err.statusCode).send(JSON.stringify(err, null, 4));
+    }
+    return next();
+  };
+  
+  const invalidPathHandler = (req, res, next) => {
+    return res.send("The endpoint you are trying to reach does not exist.");
+  };
 
 module.exports = {
   isAuthenticatedChart,
@@ -122,6 +182,10 @@ module.exports = {
   errorResponder,
   invalidPathHandler,
   commonRole,
+  requesterRole,
+  testerRole,
+  adminRole,
+  requesterOrAdminRole,
   studentRole,
   teacherRole,
   labadminRole,

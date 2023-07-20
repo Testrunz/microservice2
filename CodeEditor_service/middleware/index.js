@@ -1,52 +1,79 @@
+const firebaseAdmin = require("../services/firebase");
 const CodeEditorUser = require("../models/User");
 
 async function isAuthenticatedCodeEditor(req, res, next) {
-    try {
-      let firebaseUser;
-      const authHeader = req.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
-      if (token) {
-        firebaseUser = await firebaseAdmin.auth.verifyIdToken(token);
-      }
-      if (!firebaseUser) return res.sendStatus(401);
-      const user = await CodeEditorUser.findOne({
-        email: firebaseUser.email,
-      });
-      const { email, userId, name, role } = user;
-      if (!user) {
-        return res.sendStatus(401);
-      }
-      req.user = { email, userId, name, role };
-      next();
-    } catch (err) {
-      res.sendStatus(401);
+  try {
+    let firebaseUser;
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (token) {
+      firebaseUser = await firebaseAdmin.auth.verifyIdToken(token);
     }
+    if (!firebaseUser) return res.sendStatus(401);
+    const user = await CodeEditorUser.findOne({
+      email: firebaseUser.email,
+    });
+    const { email, userId, name, role } = user;
+    if (!user) {
+      return res.sendStatus(401);
+    }
+    req.user = { email, userId, name, role };
+    next();
+  } catch (err) {
+    res.sendStatus(401);
   }
-  const commonRole = (req, res, next) => {
+}
+const commonRole = (req, res, next) => {
+  try {
+    const role = req.user.role;
+    if (
+      [
+        "superadmin",
+        "regionaladmin",
+        "collegeorinstitueadmin",
+        "labadmin",
+        "teacher",
+        "requester",
+        "admin",
+      ].includes(role)
+    ) {
+      next();
+    }
+  } catch (err) {
+    res.sendStatus(401);
+  }
+};
+
+const adminRole = (req, res, next) => {
     try {
       const role = req.user.role;
-      if (
-        [
-          "superadmin",
-          "regionaladmin",
-          "collegeorinstitueadmin",
-          "labadmin",
-          "teacher",
-          "student",
-        ].includes(role)
-      ) {
-        next();
+      if (role === "admin") {
+        return next();
       }
+      throw new Error("This is not role support.");
     } catch (err) {
       res.sendStatus(401);
     }
   };
-  const studentRole = (req, res, next) => {
+  
+  const requesterOrAdminRole = (req, res, next) => {
     try {
       const role = req.user.role;
-      if (role === "student") {
-        next();
+      if (["requester", "admin"].includes(role)) {
+        return next();
       }
+      throw new Error("This is not role support.");
+    } catch (err) {
+      res.sendStatus(401);
+    }
+  };
+  const requesterRole = (req, res, next) => {
+    try {
+      const role = req.user.role;
+      if (role === "requester") {
+        return next();
+      }
+      throw new Error('This is not role support.');
     } catch (err) {
       res.sendStatus(401);
     }
@@ -115,16 +142,18 @@ async function isAuthenticatedCodeEditor(req, res, next) {
   const invalidPathHandler = (req, res, next) => {
     return res.send("The endpoint you are trying to reach does not exist.");
   };
-  module.exports={
-    isAuthenticatedCodeEditor,
-    errorLogger,
-    errorResponder,
-    invalidPathHandler,
-    commonRole,
-    studentRole,
-    teacherRole,
-    labadminRole,
-    collegeorinstitueadminRole,
-    regionaladminRole,
-    superAdminRole,
-  }
+module.exports = {
+  isAuthenticatedCodeEditor,
+  errorLogger,
+  errorResponder,
+  invalidPathHandler,
+  commonRole,
+  requesterRole,
+  adminRole,
+  requesterOrAdminRole,
+  teacherRole,
+  labadminRole,
+  collegeorinstitueadminRole,
+  regionaladminRole,
+  superAdminRole,
+};

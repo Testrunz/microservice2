@@ -1,6 +1,7 @@
 const EventEmitter = require("events");
 const firebaseAdmin = require("../services/firebase");
 const User = require("../models/User");
+const Setting = require("../models/Setting");
 const { connectMessageQue, purgeMessageQue } = require("../config");
 
 const eventEmitter = new EventEmitter();
@@ -13,7 +14,14 @@ eventEmitter.on("userinfo", async (data) => {
     role: data.role,
   });
   const amqpCtl = await connectMessageQue();
-
+  amqpCtl.sendToQueue(
+    process.env.RABBIT_MQ_PROCEDURE,
+    Buffer.from(sendingData, "utf-8")
+  );
+  amqpCtl.sendToQueue(
+    process.env.RABBIT_MQ_MOREINFO,
+    Buffer.from(sendingData, "utf-8")
+  );
   /* 
   amqpCtl.sendToQueue(process.env.RABBIT_MQ_MOREINFO, Buffer.from(sendingData, 'utf-8'));
   amqpCtl.sendToQueue(process.env.RABBIT_MQ_PROCEDURE, Buffer.from(sendingData, 'utf-8'));
@@ -34,12 +42,23 @@ eventEmitter.on("userinfo", async (data) => {
  await purgeMessageQue(process.env.RABBIT_MQ_CODEEDITOR)
  */
 });
-
 const validate = async (req, res) => {
   eventEmitter.emit("userinfo", req.user);
   res.status(200).json(req.user);
 };
-
+const updateValueMiddleware = async (req, res, next) => {
+  const { email } = req.user;
+  const filter = { email: email };
+  const update = { $set: { firstuse: false } };
+  try {
+    await User.updateOne(filter, update);
+    return res.status(200).send("Updated successfully");
+  } catch (err) {
+    console.log(err.code);
+    return res.status(500).json({ error: "Server error. Please try again" });
+  }
+  //firstuse
+};
 const register = async (req, res) => {
   const { email, name, password, timeZone } = req.body;
   if (!email || !name || !password) {
@@ -73,7 +92,6 @@ const register = async (req, res) => {
     return res.status(500).json({ error: "Server error. Please try again" });
   }
 };
-
 const firebaseGoogleSignin = async (req, res) => {
   const { email, name, uid, timeZone } = req.body;
   const filter = { email: email };
@@ -91,7 +109,6 @@ const firebaseGoogleSignin = async (req, res) => {
     return res.status(500).json({ error: "Server error. Please try again" });
   }
 };
-
 const firebaseMicrosoftSignin = async (req, res) => {
   const { email, name, uid, timeZone } = req.body;
   const filter = { email: email };
@@ -109,7 +126,6 @@ const firebaseMicrosoftSignin = async (req, res) => {
     return res.status(500).json({ error: "Server error. Please try again" });
   }
 };
-
 const firebaseLinkedInSignin = async (req, res) => {
   const { email, name, uid, timeZone } = req.body;
   const filter = { email: email };
@@ -127,7 +143,6 @@ const firebaseLinkedInSignin = async (req, res) => {
     return res.status(500).json({ error: "Server error. Please try again" });
   }
 };
-
 const findAllUser = async (req, res) => {
   try {
     const users = await User.find({});
@@ -138,11 +153,54 @@ const findAllUser = async (req, res) => {
   }
 };
 
+const initiateSetting = async(req, res)=>{
+  try {
+    await Setting.create({organizationId: req.body.organizationId})
+    return res.send("Setting initiated");
+  } catch (err) {
+    console.log(err.code);
+    return res.status(500).json({ error: "Server error. Please try again" });
+  }
+}
+
+const findSetting = async(req, res)=>{
+  try {
+    const result = await Setting.find({organizationId: req.query.organizationId})
+    return res.json(result);
+  } catch (err) {
+    console.log(err.code);
+    return res.status(500).json({ error: "Server error. Please try again" });
+  }
+}
+
+const updateSetting = async(req, res)=>{
+  try {
+    const {organizationId} = req.params;
+    const {notification, roleSetting} = req.body
+    const filter = { organizationId: organizationId };
+    const update = {
+      $set: {
+        notification,
+        roleSetting,
+      },
+    }
+    const result = await Setting.updateOne(filter, update)
+    return res.json(result);
+  } catch (err) {
+    console.log(err.code);
+    return res.status(500).json({ error: "Server error. Please try again" });
+  }
+}
+
 module.exports = {
   validate,
+  updateValueMiddleware,
   register,
   firebaseGoogleSignin,
   firebaseMicrosoftSignin,
   firebaseLinkedInSignin,
   findAllUser,
+  initiateSetting,
+  findSetting,
+  updateSetting
 };
