@@ -1,8 +1,17 @@
 const EventEmitter = require("events");
+const sharp = require("sharp")
 const firebaseAdmin = require("../services/firebase");
+const {uploadFile, getObjectSignedUrl} = require("../services/upload")
 const User = require("../models/User");
 const Setting = require("../models/Setting");
 const { connectMessageQue, purgeMessageQue } = require("../config");
+const generateRandomPassword = require("../services/randomPass");
+const mailing = require("../services/mailing");
+
+
+function padNumber(num) {
+  return num.toString().padStart(5, "0");
+}
 
 const eventEmitter = new EventEmitter();
 
@@ -12,6 +21,10 @@ eventEmitter.on("userinfo", async (data) => {
     name: data.name,
     email: data.email,
     role: data.role,
+    organization: "Organisation 1",
+    department: "Department 1",
+    laboratory: "Lab 1",
+    counter: padNumber(data.counter.value)
   });
   const amqpCtl = await connectMessageQue();
   amqpCtl.sendToQueue(
@@ -42,14 +55,16 @@ eventEmitter.on("userinfo", async (data) => {
  await purgeMessageQue(process.env.RABBIT_MQ_CODEEDITOR)
  */
 });
+
 const validate = async (req, res) => {
   eventEmitter.emit("userinfo", req.user);
   res.status(200).json(req.user);
 };
+
 const updateValueMiddleware = async (req, res, next) => {
   const { email } = req.user;
   const filter = { email: email };
-  const update = { $set: { firstuse: false } };
+  const update = { $set: { ...req.body } };
   try {
     await User.updateOne(filter, update);
     return res.status(200).send("Updated successfully");
@@ -57,8 +72,10 @@ const updateValueMiddleware = async (req, res, next) => {
     console.log(err.code);
     return res.status(500).json({ error: "Server error. Please try again" });
   }
+
   //firstuse
 };
+
 const register = async (req, res) => {
   const { email, name, password, timeZone } = req.body;
   if (!email || !name || !password) {
@@ -92,6 +109,45 @@ const register = async (req, res) => {
     return res.status(500).json({ error: "Server error. Please try again" });
   }
 };
+
+const createUser = async(req, res)=>{
+  try {
+    const {email, name, timeZone} = req.body
+    const password = generateRandomPassword(12);
+    const msg = {
+      to: email,
+      from: 'testrunz.learny@gmail.com',
+      subject: 'Testrunz User created',
+      text: 'An account is created in testrunz you can play around as guset user',
+      html: `<strong>this is your password: ${password}</strong>`,
+    }
+   
+    const newFirebaseUser = await firebaseAdmin.auth.createUser({
+      email,
+      password,
+    });
+    if (newFirebaseUser) {
+      await User.create({
+        email,
+        name,
+        firebaseId: newFirebaseUser.uid,
+        timeZone,
+      });
+      await mailing(msg)
+    }
+    return res
+      .status(200)
+      .json({ success: "Account created successfully. Please check your mail for password." });
+  } catch (err) {
+    if (err.code === "auth/email-already-exists") {
+      return res
+        .status(400)
+        .json({ error: "User account already exists at email address." });
+    }
+    return res.status(500).json({ error: "Server error. Please try again" });
+  }
+}
+
 const firebaseGoogleSignin = async (req, res) => {
   const { email, name, uid, timeZone } = req.body;
   const filter = { email: email };
@@ -109,6 +165,7 @@ const firebaseGoogleSignin = async (req, res) => {
     return res.status(500).json({ error: "Server error. Please try again" });
   }
 };
+
 const firebaseMicrosoftSignin = async (req, res) => {
   const { email, name, uid, timeZone } = req.body;
   const filter = { email: email };
@@ -126,6 +183,7 @@ const firebaseMicrosoftSignin = async (req, res) => {
     return res.status(500).json({ error: "Server error. Please try again" });
   }
 };
+
 const firebaseLinkedInSignin = async (req, res) => {
   const { email, name, uid, timeZone } = req.body;
   const filter = { email: email };
@@ -143,19 +201,10 @@ const firebaseLinkedInSignin = async (req, res) => {
     return res.status(500).json({ error: "Server error. Please try again" });
   }
 };
-const findAllUser = async (req, res) => {
-  try {
-    const users = await User.find({});
-    return res.json([...users]);
-  } catch (err) {
-    console.log(err.code);
-    return res.status(500).json({ error: "Server error. Please try again" });
-  }
-};
 
 const initiateSetting = async(req, res)=>{
   try {
-    await Setting.create({organizationId: req.body.organizationId})
+    await Setting.create({organizationId: req.params.organizationId})
     return res.send("Setting initiated");
   } catch (err) {
     console.log(err.code);
@@ -165,7 +214,7 @@ const initiateSetting = async(req, res)=>{
 
 const findSetting = async(req, res)=>{
   try {
-    const result = await Setting.find({organizationId: req.query.organizationId})
+    const result = await Setting.find({organizationId: req.params.organizationId})
     return res.json(result);
   } catch (err) {
     console.log(err.code);
@@ -192,15 +241,34 @@ const updateSetting = async(req, res)=>{
   }
 }
 
+const uploadimage = async(req, res)=>{
+  try {
+    const file = req.file;
+    const fileBuffer = await sharp(file.buffer)
+    .resize({ height: 1920, width: 1080, fit: "contain" })
+    .toBuffer()
+    const imageName = file.originalname
+    await uploadFile(fileBuffer, imageName, file.mimetype)
+    const imageUrl = await getObjectSignedUrl(imageName)
+    res.json({imageUrl})
+  } catch (err) {
+    
+    console.log(err);
+    return res.status(500).json({ error: "Server error. Please try again" });
+    
+  }
+}
+
 module.exports = {
   validate,
   updateValueMiddleware,
   register,
+  createUser,
   firebaseGoogleSignin,
   firebaseMicrosoftSignin,
   firebaseLinkedInSignin,
-  findAllUser,
   initiateSetting,
   findSetting,
-  updateSetting
+  updateSetting,
+  uploadimage
 };
