@@ -18,4 +18,5 @@ const serviceAccount = {
 
   module.exports = {
     auth: firebase.auth(),
+    
   }

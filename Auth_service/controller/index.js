@@ -1,13 +1,12 @@
 const EventEmitter = require("events");
-const sharp = require("sharp")
+const sharp = require("sharp");
 const firebaseAdmin = require("../services/firebase");
-const {uploadFile, getObjectSignedUrl} = require("../services/upload")
+const { uploadFile, getObjectSignedUrl } = require("../services/upload");
 const User = require("../models/User");
 const Setting = require("../models/Setting");
 const { connectMessageQue, purgeMessageQue } = require("../config");
 const generateRandomPassword = require("../services/randomPass");
 const mailing = require("../services/mailing");
-
 
 function padNumber(num) {
   return num.toString().padStart(5, "0");
@@ -24,7 +23,7 @@ eventEmitter.on("userinfo", async (data) => {
     organization: "Organisation 1",
     department: "Department 1",
     laboratory: "Lab 1",
-    counter: padNumber(data.counter.value)
+    counter: padNumber(data.counter.value),
   });
   const amqpCtl = await connectMessageQue();
   amqpCtl.sendToQueue(
@@ -54,6 +53,31 @@ eventEmitter.on("userinfo", async (data) => {
  await purgeMessageQue(process.env.RABBIT_MQ_INVENTORY)
  await purgeMessageQue(process.env.RABBIT_MQ_CODEEDITOR)
  */
+});
+
+eventEmitter.on("adduser", async (data) => {
+  const sendingData = JSON.stringify({
+    id: data._id.toString(),
+    activeStatus: false,
+  });
+  const amqpCtl = await connectMessageQue();
+  amqpCtl.sendToQueue(
+    process.env.RABBIT_MQ_MOREINFO,
+    Buffer.from(sendingData, "utf-8")
+  );
+});
+
+eventEmitter.on("removeuser", async (data) => {
+  const sendingData = JSON.stringify({
+    id: data._id.toString(),
+    activeStatus: false,
+  });
+  console.log(sendingData);
+  const amqpCtl = await connectMessageQue();
+  amqpCtl.sendToQueue(
+    process.env.RABBIT_MQ_MOREINFO,
+    Buffer.from(sendingData, "utf-8")
+  );
 });
 
 const validate = async (req, res) => {
@@ -110,18 +134,29 @@ const register = async (req, res) => {
   }
 };
 
-const createUser = async(req, res)=>{
+const createUser = async (req, res) => {
   try {
-    const {email, name, timeZone} = req.body
+    const {
+      email,
+      name,
+      timeZone,
+      firstname,
+      lastname,
+      labtype,
+      organization,
+      department,
+      role,
+      activeStatus,
+    } = req.body;
     const password = generateRandomPassword(12);
     const msg = {
       to: email,
-      from: 'testrunz.learny@gmail.com',
-      subject: 'Testrunz User created',
-      text: 'An account is created in testrunz you can play around as guset user',
+      from: "testrunz.learny@gmail.com",
+      subject: "Testrunz User created",
+      text: "An account is created in testrunz you can play around as guset user",
       html: `<strong>this is your password: ${password}</strong>`,
-    }
-   
+    };
+
     const newFirebaseUser = await firebaseAdmin.auth.createUser({
       email,
       password,
@@ -132,12 +167,31 @@ const createUser = async(req, res)=>{
         name,
         firebaseId: newFirebaseUser.uid,
         timeZone,
+        firstname,
+        lastname,
+        role,
+        activeStatus,
       });
-      await mailing(msg)
+      await mailing(msg);
+      eventEmitter.emit("adduser", {
+        type: "createuser",
+        email,
+        name,
+        firebaseId: newFirebaseUser.uid,
+        timeZone,
+        firstname,
+        lastname,
+        role,
+        activeStatus,
+        labtype,
+        organization,
+        department,
+      });
     }
-    return res
-      .status(200)
-      .json({ success: "Account created successfully. Please check your mail for password." });
+    return res.status(200).json({
+      success:
+        "Account created successfully. Please check your mail for password.",
+    });
   } catch (err) {
     if (err.code === "auth/email-already-exists") {
       return res
@@ -146,7 +200,22 @@ const createUser = async(req, res)=>{
     }
     return res.status(500).json({ error: "Server error. Please try again" });
   }
-}
+};
+
+const removeUser = async (req, res) => {
+  try {
+    const uuid = req.user.userId;
+    const response = await firebaseAdmin.auth.updateUser(uuid, {
+      disabled: true,
+    });
+    if (response) {
+      eventEmitter.emit("removeuser", { type: "removeuser", ...req.user });
+    }
+    return res.status(200).json({ success: "user disabled successfully" });
+  } catch (err) {
+    return res.status(500).json({ error: "Server error. Please try again" });
+  }
+};
 
 const firebaseGoogleSignin = async (req, res) => {
   const { email, name, uid, timeZone } = req.body;
@@ -202,62 +271,62 @@ const firebaseLinkedInSignin = async (req, res) => {
   }
 };
 
-const initiateSetting = async(req, res)=>{
+const initiateSetting = async (req, res) => {
   try {
-    await Setting.create({organizationId: req.params.organizationId})
+    await Setting.create({ organizationId: req.params.organizationId });
     return res.send("Setting initiated");
   } catch (err) {
     console.log(err.code);
     return res.status(500).json({ error: "Server error. Please try again" });
   }
-}
+};
 
-const findSetting = async(req, res)=>{
+const findSetting = async (req, res) => {
   try {
-    const result = await Setting.find({organizationId: req.params.organizationId})
+    const result = await Setting.find({
+      organizationId: req.params.organizationId,
+    });
     return res.json(result);
   } catch (err) {
     console.log(err.code);
     return res.status(500).json({ error: "Server error. Please try again" });
   }
-}
+};
 
-const updateSetting = async(req, res)=>{
+const updateSetting = async (req, res) => {
   try {
-    const {organizationId} = req.params;
-    const {notification, roleSetting} = req.body
+    const { organizationId } = req.params;
+    const { notification, roleSetting } = req.body;
     const filter = { organizationId: organizationId };
     const update = {
       $set: {
         notification,
         roleSetting,
       },
-    }
-    const result = await Setting.updateOne(filter, update)
+    };
+    const result = await Setting.updateOne(filter, update);
     return res.json(result);
   } catch (err) {
     console.log(err.code);
     return res.status(500).json({ error: "Server error. Please try again" });
   }
-}
+};
 
-const uploadimage = async(req, res)=>{
+const uploadimage = async (req, res) => {
   try {
     const file = req.file;
     const fileBuffer = await sharp(file.buffer)
-    .resize({ height: 1920, width: 1080, fit: "contain" })
-    .toBuffer()
-    const imageName = file.originalname
-    await uploadFile(fileBuffer, imageName, file.mimetype)
-    const imageUrl = await getObjectSignedUrl(imageName)
-    res.json({imageUrl})
+      .resize({ height: 1920, width: 1080, fit: "contain" })
+      .toBuffer();
+    const imageName = file.originalname;
+    await uploadFile(fileBuffer, imageName, file.mimetype);
+    const imageUrl = await getObjectSignedUrl(imageName);
+    res.json({ imageUrl });
   } catch (err) {
-    
     console.log(err);
     return res.status(500).json({ error: "Server error. Please try again" });
-    
   }
-}
+};
 
 module.exports = {
   validate,
@@ -267,8 +336,9 @@ module.exports = {
   firebaseGoogleSignin,
   firebaseMicrosoftSignin,
   firebaseLinkedInSignin,
+  removeUser,
   initiateSetting,
   findSetting,
   updateSetting,
-  uploadimage
+  uploadimage,
 };

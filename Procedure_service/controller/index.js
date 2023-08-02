@@ -24,7 +24,7 @@ const listAllProcedureAssociate = async (req, res) => {
     });
     Promise.all(ids)
       .then((data) => {
-        return res.status(200).json([...data]);
+        return res.status(200).json({user, data: [...data]});
       })
       .catch((err) => {
         throw err;
@@ -35,16 +35,18 @@ const listAllProcedureAssociate = async (req, res) => {
 };
 const procedureById = async (req, res) => {
   try {
+    const user = await User.findOne({ userId: req.user.userId });
     const procedure = await Procedure.findById(req.params.id);
-    return res.status(200).json(procedure);
+    return res.status(200).json({user,procedure});
   } catch (error) {
     return res.status(500).json({ error: "Server error. Please try again" });
   }
 };
 const procedureByTitle = async (req, res) => {
   try {
+    const user = await User.findOne({ userId: req.user.userId });
     const procedure = await Procedure.findOne({ title: req.params.title });
-    return res.status(200).json(procedure);
+    return res.status(200).json({user, procedure});
   } catch (error) {
     return res.status(500).json({ error: "Server error. Please try again" });
   }

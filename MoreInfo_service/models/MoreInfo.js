@@ -4,9 +4,12 @@ const { Schema } = mongoose;
 //const data = require("../seed/moreinfos.json")
 
 const MoreInfoSchema = new Schema(
-  {
+    {
     userId: {
       type: String,
+    },
+    userCounter: {
+      type: String
     },
     activeStatus: {
       type: Boolean,
@@ -14,35 +17,32 @@ const MoreInfoSchema = new Schema(
     },
     imageUrl: {
       type: String,
-      default: "",
+      default: ""
     },
     name: {
       type: String,
-      default: "",
+      default: ""
     },
     firstname: {
-      type: String,
+      type: String
     },
     lastname: {
-      type: String,
+      type: String
     },
     email: {
       type: String,
     },
     mobile: {
-      type: String,
-    },
+      type: String
+    },  
     role: {
       type: String,
     },
-    university: {
-      type: String,
-    },
-    institute: {
-      type: String,
+    organization: {
+      type: Schema.Types.Mixed,
     },
     department: {
-      type: String,
+      type: Schema.Types.Mixed,
     },
     state: {
       type: String,
@@ -50,18 +50,8 @@ const MoreInfoSchema = new Schema(
     country: {
       type: String,
     },
-    year: {
-      type: Number,
-    },
-    semester: {
-      type: Number,
-    },
-    showOnce: {
-      type: Boolean,
-      default: false,
-    },
     labtype: {
-      type: [String],
+      type: Schema.Types.Mixed,
     },
   },
   { timestamps: true }

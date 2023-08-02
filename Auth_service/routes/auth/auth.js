@@ -8,6 +8,7 @@ const {
   firebaseGoogleSignin,
   firebaseMicrosoftSignin,
   firebaseLinkedInSignin,
+  removeUser,
   initiateSetting,
   findSetting,
   updateSetting,
@@ -34,6 +35,7 @@ router.post("/auth/microsoftlogin", firebaseMicrosoftSignin);
 router.post("/auth/linkedinlogin", firebaseLinkedInSignin);
 router.get("/auth/me", isAuthenticated, commonRole, validate);
 router.patch("/auth/me", isAuthenticated, commonRole, updateValueMiddleware);
+router.patch("/auth/remove", isAuthenticated, adminRole, removeUser)
 router.post("/setting/:organizationId", isAuthenticated, adminRole, initiateSetting);
 router.get("/setting/:organizationId", isAuthenticated, adminRole, findSetting);
 router.patch("/setting/:organizationId", isAuthenticated, adminRole, updateSetting);
