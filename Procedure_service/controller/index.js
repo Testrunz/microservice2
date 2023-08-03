@@ -2,25 +2,35 @@ const User = require("../models/User");
 const Procedure = require("../models/Procedure");
 const createProcedure = async (req, res) => {
   try {
-    const { title, html } = req.body;
-    const procedure = new Procedure({ title, html });
+    const { title, html, createdBy } = req.body;
+    const procedure = new Procedure({ title, html, createdBy });
     const result = await procedure.save();
     const user = await User.findOne({ userId: req.user.userId });
     user.procedureIds.push(result._id);
     const newUser = await user.save();
     return res.status(200).json({ ...newUser });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ error: "Server error. Please try again" });
   }
 };
+
+const duplicateProcedure = async(req, res)=>{
+  try {
+    return res.status(200).send("Duplicate created");
+  } catch (err) {
+    return res.status(500).json({ error: "Server error. Please try again" });
+
+  }
+}
 
 const listAllProcedureAssociate = async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.user.userId });
     const ids = user.procedureIds.map(async (ele) => {
       const tempId = ele.toString();
-      const { title } = await Procedure.findOne({ _id: tempId });
-      return { id: tempId, title };
+      const { title, createdBy, createdAt } = await Procedure.findOne({ _id: tempId });
+      return { id: tempId, title, createdBy, createdAt };
     });
     Promise.all(ids)
       .then((data) => {
@@ -74,6 +84,7 @@ const deleteprocedureById = async (req, res) => {
 };
 module.exports = {
   createProcedure,
+  duplicateProcedure,
   listAllProcedureAssociate,
   procedureById,
   procedureByTitle,

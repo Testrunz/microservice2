@@ -28,7 +28,7 @@ const upload = multer({ storage: storage });
 const router = new Router();
 
 router.post("/upload", upload.single("image"), uploadimage);
-router.post("/auth/create", createUser)
+router.post("/auth/create", isAuthenticated, adminRole, createUser)
 router.post("/auth/register", register);
 router.post("/auth/googlelogin", firebaseGoogleSignin);
 router.post("/auth/microsoftlogin", firebaseMicrosoftSignin);

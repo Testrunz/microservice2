@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const {
   createProcedure,
+  duplicateProcedure,
   listAllProcedureAssociate,
   procedureById,
   procedureByTitle,
@@ -15,6 +16,12 @@ router.post(
   isAuthenticatedProcedure,
   commonRole,
   createProcedure
+);
+router.post(
+  "/duplicateprocedure",
+  isAuthenticatedProcedure,
+  commonRole,
+  duplicateProcedure
 );
 router.get(
   "/procedure",

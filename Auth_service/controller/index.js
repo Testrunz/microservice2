@@ -13,75 +13,70 @@ function padNumber(num) {
 }
 
 const eventEmitter = new EventEmitter();
+const emitEvent = (eventName, data) => {
+  return new Promise((resolve, reject) => {
+    eventEmitter.emit(eventName, data, (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
 
-eventEmitter.on("userinfo", async (data) => {
+eventEmitter.on("userinfo", async (data, callback) => {
+  try {
+    const sendingData = JSON.stringify({
+      id: data._id.toString(),
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      organization: "Organisation 1",
+      department: "Department 1",
+      laboratory: "Lab 1",
+      counter: padNumber(data.counter.value),
+    });
+    const amqpCtl = await connectMessageQue();
+
+    amqpCtl.sendToQueue(
+      process.env.RABBIT_MQ_MOREINFO,
+      Buffer.from(sendingData, "utf-8")
+    );
+    amqpCtl.sendToQueue(
+      process.env.RABBIT_MQ_PROCEDURE,
+      Buffer.from(sendingData, "utf-8")
+    );
+
+    callback(null, "Event handled successfully");
+  } catch (error) {
+    callback(error);
+  }
+});
+
+eventEmitter.on("adduser", async (data, callback) => {
+  try {
   const sendingData = JSON.stringify({
-    id: data._id.toString(),
-    name: data.name,
-    email: data.email,
-    role: data.role,
-    organization: "Organisation 1",
-    department: "Department 1",
-    laboratory: "Lab 1",
-    counter: padNumber(data.counter.value),
+    type: "createuser",
+    ...data,
   });
   const amqpCtl = await connectMessageQue();
+  amqpCtl.sendToQueue(
+    process.env.RABBIT_MQ_MOREINFO,
+    Buffer.from(sendingData, "utf-8")
+  );
   amqpCtl.sendToQueue(
     process.env.RABBIT_MQ_PROCEDURE,
     Buffer.from(sendingData, "utf-8")
   );
-  amqpCtl.sendToQueue(
-    process.env.RABBIT_MQ_MOREINFO,
-    Buffer.from(sendingData, "utf-8")
-  );
-  /* 
-  amqpCtl.sendToQueue(process.env.RABBIT_MQ_MOREINFO, Buffer.from(sendingData, 'utf-8'));
-  amqpCtl.sendToQueue(process.env.RABBIT_MQ_PROCEDURE, Buffer.from(sendingData, 'utf-8'));
-  amqpCtl.sendToQueue(process.env.RABBIT_MQ_EXPERIMENT, Buffer.from(sendingData, 'utf-8'));
-  amqpCtl.sendToQueue(process.env.RABBIT_MQ_RUNPYTHON, Buffer.from(sendingData, 'utf-8'));
-  amqpCtl.sendToQueue(process.env.RABBIT_MQ_NOTES, Buffer.from(sendingData, 'utf-8'));
-  amqpCtl.sendToQueue(process.env.RABBIT_MQ_FEEDBACK, Buffer.from(sendingData, 'utf-8'));
-  amqpCtl.sendToQueue(process.env.RABBIT_MQ_INVENTORY, Buffer.from(sendingData, 'utf-8'));
-  amqpCtl.sendToQueue(process.env.RABBIT_MQ_CODEEDITOR, Buffer.from(sendingData, 'utf-8'));
-  amqpCtl.sendToQueue(process.env.RABBIT_MQ_CHART, Buffer.from(sendingData, 'utf-8'));
- */
-  /* 
- await purgeMessageQue(process.env.RABBIT_MQ_MOREINFO)
- await purgeMessageQue(process.env.RABBIT_MQ_PROCEDURE)
- await purgeMessageQue(process.env.RABBIT_MQ_EXPERIMENT)
- await purgeMessageQue(process.env.RABBIT_MQ_RUNPYTHON)
- await purgeMessageQue(process.env.RABBIT_MQ_INVENTORY)
- await purgeMessageQue(process.env.RABBIT_MQ_CODEEDITOR)
- */
-});
-
-eventEmitter.on("adduser", async (data) => {
-  const sendingData = JSON.stringify({
-    id: data._id.toString(),
-    activeStatus: false,
-  });
-  const amqpCtl = await connectMessageQue();
-  amqpCtl.sendToQueue(
-    process.env.RABBIT_MQ_MOREINFO,
-    Buffer.from(sendingData, "utf-8")
-  );
-});
-
-eventEmitter.on("removeuser", async (data) => {
-  const sendingData = JSON.stringify({
-    id: data._id.toString(),
-    activeStatus: false,
-  });
-  console.log(sendingData);
-  const amqpCtl = await connectMessageQue();
-  amqpCtl.sendToQueue(
-    process.env.RABBIT_MQ_MOREINFO,
-    Buffer.from(sendingData, "utf-8")
-  );
+  callback(null, "Event handled successfully");
+} catch (error) {
+  callback(error);
+}
 });
 
 const validate = async (req, res) => {
-  eventEmitter.emit("userinfo", req.user);
+  await emitEvent("userinfo", req.user);
   res.status(200).json(req.user);
 };
 
@@ -162,7 +157,7 @@ const createUser = async (req, res) => {
       password,
     });
     if (newFirebaseUser) {
-      await User.create({
+      const newUser = await User.create({
         email,
         name,
         firebaseId: newFirebaseUser.uid,
@@ -173,11 +168,12 @@ const createUser = async (req, res) => {
         activeStatus,
       });
       await mailing(msg);
-      eventEmitter.emit("adduser", {
+      await emitEvent("adduser", {
         type: "createuser",
         email,
         name,
-        firebaseId: newFirebaseUser.uid,
+        userId: newFirebaseUser.uid,
+        userCounter: newUser.counter.value,
         timeZone,
         firstname,
         lastname,
@@ -205,12 +201,9 @@ const createUser = async (req, res) => {
 const removeUser = async (req, res) => {
   try {
     const uuid = req.user.userId;
-    const response = await firebaseAdmin.auth.updateUser(uuid, {
+    await firebaseAdmin.auth.updateUser(uuid, {
       disabled: true,
     });
-    if (response) {
-      eventEmitter.emit("removeuser", { type: "removeuser", ...req.user });
-    }
     return res.status(200).json({ success: "user disabled successfully" });
   } catch (err) {
     return res.status(500).json({ error: "Server error. Please try again" });
