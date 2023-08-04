@@ -19,8 +19,6 @@ router.post(
 );
 router.post(
   "/duplicateprocedure",
-  isAuthenticatedProcedure,
-  commonRole,
   duplicateProcedure
 );
 router.get(
@@ -48,7 +46,7 @@ router.patch(
   editprocedureById
 );
 router.delete(
-  "/procedure/:id",
+  "/procedure",
   isAuthenticatedProcedure,
   commonRole,
   deleteprocedureById

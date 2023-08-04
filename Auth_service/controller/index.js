@@ -32,7 +32,7 @@ eventEmitter.on("userinfo", async (data, callback) => {
       name: data.name,
       email: data.email,
       role: data.role,
-      organization: "Organisation 1",
+      organization: "64b9866048127c914d3a1a05",
       department: "Department 1",
       laboratory: "Lab 1",
       counter: padNumber(data.counter.value),

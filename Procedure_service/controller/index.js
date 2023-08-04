@@ -15,26 +15,37 @@ const createProcedure = async (req, res) => {
   }
 };
 
-const duplicateProcedure = async(req, res)=>{
+const duplicateProcedure = async (req, res) => {
   try {
+    const { id } = req.body;
+    const { title, html, createdBy } = await Procedure.find({ _id: id });
+    const procedure = new Procedure({ title, html, createdBy });
+    await procedure.save();
     return res.status(200).send("Duplicate created");
   } catch (err) {
+    console.log(err);
     return res.status(500).json({ error: "Server error. Please try again" });
-
   }
-}
+};
 
 const listAllProcedureAssociate = async (req, res) => {
   try {
+    const { department, labtype, id, createdBy, createdOn } = req.query;
     const user = await User.findOne({ userId: req.user.userId });
     const ids = user.procedureIds.map(async (ele) => {
       const tempId = ele.toString();
-      const { title, createdBy, createdAt } = await Procedure.findOne({ _id: tempId });
+      const { title, createdBy, createdAt } = await Procedure.findOne({
+        _id: tempId,
+      });
       return { id: tempId, title, createdBy, createdAt };
     });
     Promise.all(ids)
       .then((data) => {
-        return res.status(200).json({user, data: [...data]});
+        console.log("DATA", data);
+        if (department || labtype || id || createdBy || createdOn) {
+          console.log("DATA", data);
+        }
+        return res.status(200).json({ user, data: [...data] });
       })
       .catch((err) => {
         throw err;
@@ -47,7 +58,7 @@ const procedureById = async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.user.userId });
     const procedure = await Procedure.findById(req.params.id);
-    return res.status(200).json({user,procedure});
+    return res.status(200).json({ user, procedure });
   } catch (error) {
     return res.status(500).json({ error: "Server error. Please try again" });
   }
@@ -56,7 +67,7 @@ const procedureByTitle = async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.user.userId });
     const procedure = await Procedure.findOne({ title: req.params.title });
-    return res.status(200).json({user, procedure});
+    return res.status(200).json({ user, procedure });
   } catch (error) {
     return res.status(500).json({ error: "Server error. Please try again" });
   }
@@ -75,8 +86,12 @@ const editprocedureById = async (req, res) => {
 };
 const deleteprocedureById = async (req, res) => {
   try {
-    await User.findOneAndUpdate({userId: req.user.userId }, {$pull: {procedureIds: req.params.id}})
-    await Procedure.deleteOne({_id: req.params.id})
+    const { ids } = req.body;
+    await Procedure.deleteMany({ _id: { $in: ids } });
+    await User.updateMany(
+      { procedureIds: { $in: ids } },
+      { $pullAll: { procedureIds: ids } }
+    );
     return res.status(200).json({});
   } catch (error) {
     return res.status(500).json({ error: "Server error. Please try again" });
