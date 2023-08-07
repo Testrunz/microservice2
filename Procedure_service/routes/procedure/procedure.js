@@ -19,6 +19,8 @@ router.post(
 );
 router.post(
   "/duplicateprocedure",
+  isAuthenticatedProcedure,
+  commonRole,
   duplicateProcedure
 );
 router.get(

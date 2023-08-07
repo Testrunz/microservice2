@@ -6,9 +6,18 @@ const ExperimentSchema = new Schema({
     type: String,
     required: true,
   },
+  procedurename: {
+    type: String,
+  },
+  testobjective: {
+    type: String,
+  },
+  dueDate:{
+    type: Date,
+  },
   status: {
     type: String,
-    enum: ["viewed", "opened", "closed"],
+    enum: ["not started", "opened", "completed"],
     default: "opened",
   },
   datas: {
@@ -23,12 +32,12 @@ const ExperimentSchema = new Schema({
   expresult: {
     type: String,
   },
-  shareWith: [
+  assignTo: [
     {
       userId: String,
       date: String,
     },
   ],
-});
+}, { timestamps: true });
 
 module.exports = Experiment = mongoose.model("experiment", ExperimentSchema);

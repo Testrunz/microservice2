@@ -47,6 +47,10 @@ eventEmitter.on("userinfo", async (data, callback) => {
       process.env.RABBIT_MQ_PROCEDURE,
       Buffer.from(sendingData, "utf-8")
     );
+    amqpCtl.sendToQueue(
+      process.env.RABBIT_MQ_EXPERIMENT,
+      Buffer.from(sendingData, "utf-8")
+    );
 
     callback(null, "Event handled successfully");
   } catch (error) {
@@ -64,9 +68,13 @@ eventEmitter.on("adduser", async (data, callback) => {
   amqpCtl.sendToQueue(
     process.env.RABBIT_MQ_MOREINFO,
     Buffer.from(sendingData, "utf-8")
-  );
+  );yarn 
   amqpCtl.sendToQueue(
     process.env.RABBIT_MQ_PROCEDURE,
+    Buffer.from(sendingData, "utf-8")
+  );
+  amqpCtl.sendToQueue(
+    process.env.RABBIT_MQ_EXPERIMENT,
     Buffer.from(sendingData, "utf-8")
   );
   callback(null, "Event handled successfully");
